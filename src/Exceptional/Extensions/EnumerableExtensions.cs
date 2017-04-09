@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 #endregion
 
-namespace ExceptionManager.Extensions
+namespace Exceptional.Extensions
 {
     public static class EnumerableExtensions
     {

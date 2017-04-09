@@ -9,13 +9,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using ExceptionManager.Handlers;
-using ExceptionManager.Terminators;
+using Exceptional.Exceptions;
+using Exceptional.Handlers;
+using Exceptional.Terminators;
+using JetBrains.Annotations;
 
 #endregion
 
-namespace ExceptionManager.Policies
+namespace Exceptional.Policies
 {
     public class ExceptionPolicy<TSrc, TEnd> : ExceptionPolicyBase
         where TSrc : Exception
@@ -27,19 +28,30 @@ namespace ExceptionManager.Policies
         public ExceptionPolicy(Dictionary<Type, ExceptionHandlerBase> handlers, TerminatorBase<TEnd> terminatorBase)
         {
             this.handlers = handlers;
-            this.terminatorBase = terminatorBase ?? new DummyTerminatorBase<TEnd>();
+            this.terminatorBase = terminatorBase;
         }
 
         public override Type Handles => typeof(TSrc);
         public override Type Returns => typeof(TEnd);
 
+        [CanBeNull]
         public override Exception Handle(Exception src)
         {
-            var cur = handlers.Aggregate(src, (current, handler) => handler.Value.Handle(current));
+            var cur = src;
+            foreach (var handler in handlers)
+            {
+                cur = handler.Value.Handle(cur);
+                if (cur == null)
+                    throw new ExceptionManagerConfigurationException();
+            }
 
-            terminatorBase.Terminate(cur as TEnd);
+            // No terminator was defined, the exception will be returned for re-throwing.
+            if (terminatorBase == null)
+                return cur;
 
-            return cur;
+            terminatorBase.Terminate((TEnd) cur);
+
+            return null;
         }
     }
 }

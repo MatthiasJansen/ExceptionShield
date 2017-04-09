@@ -11,7 +11,7 @@ using System;
 
 #endregion
 
-namespace ExceptionManager.Builder
+namespace Exceptional.Builder
 {
     public class PolicyDefinitionBuilder<TSrc, TEnd>
         where TSrc : Exception

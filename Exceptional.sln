@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26403.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Exceptional", "src\Exceptional\Exceptional.csproj", "{6A4E0ACA-DF1E-4580-A750-DDB78E589EBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Exceptional", "test\Exceptional\Exceptional.csproj", "{A3435A6D-CD8B-45A2-91F1-9B9A5421D7EB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Exceptional.Test", "test\Exceptional\Exceptional.Test.csproj", "{A3435A6D-CD8B-45A2-91F1-9B9A5421D7EB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{734E900E-B8C3-46E6-B0CC-CC05573E61EE}"
 EndProject

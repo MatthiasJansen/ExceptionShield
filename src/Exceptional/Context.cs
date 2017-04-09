@@ -5,15 +5,10 @@
 
 #endregion
 
-#region imports
-
-using System;
-
-#endregion
-
-namespace Exceptional.Exceptions
+namespace Exceptional
 {
-    public class ExceptionManagerConfigurationException : Exception
+    public static class Context
     {
+        public const string Default = @"3E52F3D4-4898-4324-8360-81C1D07C79CE";
     }
 }

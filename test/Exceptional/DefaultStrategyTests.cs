@@ -10,15 +10,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using ExceptionManager;
-using ExceptionManager.Builder;
-using ExceptionManager.Policies;
-using ExceptionManager.Strategies;
+using Exceptional.Builder;
+using Exceptional.Policies;
+using Exceptional.Strategies;
 using NUnit.Framework;
 
 #endregion
 
-namespace ExceptionManagerTests
+namespace Exceptional.Test
 {
     [TestFixture]
     public class DefaultStrategyTests
@@ -41,34 +40,34 @@ namespace ExceptionManagerTests
             {
                 get
                 {
-                    var g1cn = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete(null));
-                    var g2cn = PolicyGroupBuilder.Create<L2Ex, Exception>(d => d.StartAndComplete(null));
-                    var g3cn = PolicyGroupBuilder.Create<L3Ex, Exception>(d => d.StartAndComplete(null));
+                    var g1Cn = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete(null));
+                    var g2Cn = PolicyGroupBuilder.Create<L2Ex, Exception>(d => d.StartAndComplete(null));
+                    var g3Cn = PolicyGroupBuilder.Create<L3Ex, Exception>(d => d.StartAndComplete(null));
 
-                    var g1cs = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete(null),
+                    var g1Cs = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete(null),
                         s => s.SetContext("special").StartAndComplete(null));
 
                     yield return new TestCaseData(
                         typeof(L3Ex),
-                        new Dictionary<Type, ExceptionPolicyGroupBase> {{g1cn.Handles, g1cn}},
+                        new Dictionary<Type, ExceptionPolicyGroupBase> {{g1Cn.Handles, g1Cn}},
                         Context.Default,
                         typeof(L1Ex)
                     );
                     yield return new TestCaseData(
                         typeof(L3Ex),
-                        new Dictionary<Type, ExceptionPolicyGroupBase> {{g1cn.Handles, g1cn}},
+                        new Dictionary<Type, ExceptionPolicyGroupBase> {{g1Cn.Handles, g1Cn}},
                         "special",
                         typeof(L1Ex)
                     );
                     yield return new TestCaseData(
                         typeof(L3Ex),
-                        new Dictionary<Type, ExceptionPolicyGroupBase> {{g1cs.Handles, g1cs}},
+                        new Dictionary<Type, ExceptionPolicyGroupBase> {{g1Cs.Handles, g1Cs}},
                         "special",
                         typeof(L1Ex)
                     );
                     yield return new TestCaseData(
                         typeof(L3Ex),
-                        new Dictionary<Type, ExceptionPolicyGroupBase> {{g1cn.Handles, g1cn}, {g2cn.Handles, g2cn}},
+                        new Dictionary<Type, ExceptionPolicyGroupBase> {{g1Cn.Handles, g1Cn}, {g2Cn.Handles, g2Cn}},
                         Context.Default,
                         typeof(L2Ex)
                     );
@@ -76,9 +75,9 @@ namespace ExceptionManagerTests
                         typeof(L3Ex),
                         new Dictionary<Type, ExceptionPolicyGroupBase>
                         {
-                            {g1cn.Handles, g1cn},
-                            {g2cn.Handles, g2cn},
-                            {g3cn.Handles, g3cn}
+                            {g1Cn.Handles, g1Cn},
+                            {g2Cn.Handles, g2Cn},
+                            {g3Cn.Handles, g3Cn}
                         },
                         Context.Default,
                         typeof(L3Ex)

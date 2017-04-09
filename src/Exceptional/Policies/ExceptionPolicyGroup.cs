@@ -9,11 +9,11 @@
 
 using System;
 using System.Collections.ObjectModel;
-using ExceptionManager.Extensions;
+using Exceptional.Extensions;
 
 #endregion
 
-namespace ExceptionManager.Policies
+namespace Exceptional.Policies
 {
     public class ExceptionPolicyGroup<TSrc, TEnd> : ExceptionPolicyGroupBase
         where TEnd : Exception where TSrc : Exception

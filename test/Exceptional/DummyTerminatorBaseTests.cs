@@ -8,12 +8,12 @@
 #region imports
 
 using System;
-using ExceptionManager.Terminators;
+using Exceptional.Terminators;
 using NUnit.Framework;
 
 #endregion
 
-namespace ExceptionManagerTests
+namespace Exceptional.Test
 {
     [TestFixture]
     public class DummyTerminatorBaseTests

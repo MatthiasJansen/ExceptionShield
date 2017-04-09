@@ -10,12 +10,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using ExceptionManager.Extensions;
-using ExceptionManager.Policies;
+using Exceptional.Extensions;
+using Exceptional.Policies;
 
 #endregion
 
-namespace ExceptionManager.Strategies
+namespace Exceptional.Strategies
 {
     public class DefaultPolicyMatchingStrategy : IPolicyMatchingStrategy
     {

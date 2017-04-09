@@ -9,13 +9,13 @@
 
 using System;
 using System.Collections.Generic;
-using ExceptionManager.Handlers;
-using ExceptionManager.Policies;
-using ExceptionManager.Terminators;
+using Exceptional.Handlers;
+using Exceptional.Policies;
+using Exceptional.Terminators;
 
 #endregion
 
-namespace ExceptionManager.Builder
+namespace Exceptional.Builder
 {
     public class PolicyDefBuilderPart<TSrc, TCur, TNxt, TEnd>
         where TSrc : Exception

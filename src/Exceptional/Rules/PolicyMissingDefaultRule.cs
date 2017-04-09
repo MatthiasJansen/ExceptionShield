@@ -11,13 +11,13 @@ using System;
 
 #endregion
 
-namespace ExceptionManager.Rules
+namespace Exceptional.Rules
 {
     public class PolicyMissingDefaultRule : IUnconfiguredExceptionRule
     {
         public Exception Apply(Exception exception)
         {
-            return exception;
+            return new PolicyMissingException();
         }
     }
 }

@@ -11,7 +11,7 @@ using System;
 
 #endregion
 
-namespace ExceptionManager.Policies
+namespace Exceptional.Policies
 {
     public abstract class ExceptionPolicyBase
     {

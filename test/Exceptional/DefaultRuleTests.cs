@@ -8,14 +8,15 @@
 #region imports
 
 using System;
-using ExceptionManager.Builder;
-using ExceptionManager.Rules;
+using Exceptional.Builder;
+using Exceptional.Rules;
 using NUnit.Framework;
 using Rhino.Mocks;
+using static Exceptional.Test.ExceptionManagerTests;
 
 #endregion
 
-namespace ExceptionManagerTests
+namespace Exceptional.Test
 {
     [TestFixture]
     public class DefaultRuleTests
@@ -26,22 +27,22 @@ namespace ExceptionManagerTests
             var defaultRule = MockRepository.GenerateMock<IUnconfiguredExceptionRule>();
             defaultRule.Expect(r => r.Apply(Arg<Exception>.Is.Anything))
                 .Repeat.Once()
-                .Return(new OutOfMemoryException());
-            var manager = new ExceptionManager.ExceptionManager(defaultRule);
+                .Return(new PolicyMissingException());
 
-            var handlerT01 = new ExceptionManagerTests.TestExceptionHandler<ExceptionManagerTests.DummyException>();
+            var manager = new ExceptionManager(defaultRule);
+
+            var handlerT01 = new TestExceptionHandler<DummyException>();
 
             var policyGroup = PolicyGroupBuilder
-                .Create<ExceptionManagerTests.DummyException, ExceptionManagerTests.DummyException>
+                .Create<DummyException, DummyException>
                 (d => d.StartAndComplete(handlerT01)
                 );
 
 
             manager.AddPolicyGroup(policyGroup);
 
-            var exception = manager.Handle(new OutOfMemoryException());
+            Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<PolicyMissingException>());
 
-            Assert.IsInstanceOf<OutOfMemoryException>(exception);
             defaultRule.AssertWasCalled(r => r.Apply(Arg<Exception>.Is.Anything));
         }
     }

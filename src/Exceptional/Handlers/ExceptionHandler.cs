@@ -11,7 +11,7 @@ using System;
 
 #endregion
 
-namespace ExceptionManager.Handlers
+namespace Exceptional.Handlers
 {
     public class ExceptionHandler<TSrc, TEnd> : ExceptionHandlerBase
         where TSrc : Exception

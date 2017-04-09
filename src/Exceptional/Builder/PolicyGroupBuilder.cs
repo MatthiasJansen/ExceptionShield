@@ -10,11 +10,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using ExceptionManager.Policies;
+using Exceptional.Policies;
 
 #endregion
 
-namespace ExceptionManager.Builder
+namespace Exceptional.Builder
 {
     public class PolicyGroupBuilder
     {

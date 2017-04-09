@@ -9,21 +9,16 @@
 
 using System;
 using System.Collections.Generic;
-using ExceptionManager.Exceptions;
-using ExceptionManager.Policies;
-using ExceptionManager.Rules;
-using ExceptionManager.Strategies;
+using Exceptional.Exceptions;
+using Exceptional.Policies;
+using Exceptional.Rules;
+using Exceptional.Strategies;
 
 #endregion
 
-namespace ExceptionManager
+namespace Exceptional
 {
-    public static class Context
-    {
-        public const string Default = @"3E52F3D4-4898-4324-8360-81C1D07C79CE";
-    }
-
-    public class ExceptionManager
+    public class ExceptionManager : IExceptionManager
     {
         private readonly IUnconfiguredExceptionRule defaultRule;
 
@@ -38,17 +33,13 @@ namespace ExceptionManager
             this.defaultRule = defaultRule ?? new PolicyMissingDefaultRule();
         }
 
-        public Exception Handle<TSrc>(TSrc exception, string context = Context.Default)
+        public void Handle<TSrc>(TSrc exception, string context = Context.Default)
             where TSrc : Exception
         {
-            if (string.IsNullOrWhiteSpace(context))
-                context = Context.Default;
+            var result = HandleInner(exception, context);
 
-            var policy = strategy.MatchPolicy(policyGroupDictionary, exception.GetType(), context);
-
-            return policy != null
-                ? policy.Handle(exception)
-                : defaultRule.Apply(exception);
+            if (result != null)
+                throw result;
         }
 
         public void AddPolicyGroup<TSrc, TEnd>(ExceptionPolicyGroup<TSrc, TEnd> policyGroup)
@@ -59,6 +50,21 @@ namespace ExceptionManager
                 throw new ExceptionManagerConfigurationException();
 
             policyGroupDictionary.Add(policyGroup.Handles, policyGroup);
+        }
+
+        private Exception HandleInner<TSrc>(TSrc exception, string context)
+            where TSrc : Exception
+        {
+            if (exception == null)
+                throw new ArgumentNullException(nameof(exception));
+
+            if (string.IsNullOrWhiteSpace(context))
+                context = Context.Default;
+
+            var policy = strategy.MatchPolicy(policyGroupDictionary, exception.GetType(), context);
+            return policy != null
+                ? policy.Handle(exception)
+                : defaultRule.Apply(exception);
         }
     }
 }

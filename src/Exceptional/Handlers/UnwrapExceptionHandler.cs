@@ -11,13 +11,13 @@ using System;
 
 #endregion
 
-namespace ExceptionManager.Handlers
+namespace Exceptional.Handlers
 {
     public class UnwrapExceptionHandler : ExceptionHandler<AggregateException, AggregateException>
     {
-        private readonly ExceptionManager manager;
+        private readonly IExceptionManager manager;
 
-        public UnwrapExceptionHandler(ExceptionManager manager)
+        public UnwrapExceptionHandler(IExceptionManager manager)
         {
             this.manager = manager;
         }

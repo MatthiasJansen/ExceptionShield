@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExceptionManager\ExceptionManager.csproj" />
+    <ProjectReference Include="..\..\src\Exceptional\Exceptional.csproj" />
   </ItemGroup>
 
 </Project>

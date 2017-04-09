@@ -11,7 +11,7 @@ using System;
 
 #endregion
 
-namespace ExceptionManager.Terminators
+namespace Exceptional.Terminators
 {
     public class DummyTerminatorBase<TEnd> : TerminatorBase<TEnd>
         where TEnd : Exception

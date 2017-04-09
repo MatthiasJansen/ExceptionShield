@@ -11,11 +11,9 @@ using System;
 
 #endregion
 
-namespace Exceptional.Terminators
+namespace Exceptional.Rules
 {
-    public abstract class TerminatorBase<TEnd>
-        where TEnd : Exception
+    public class PolicyMissingException : Exception
     {
-        public abstract void Terminate(TEnd exception);
     }
 }

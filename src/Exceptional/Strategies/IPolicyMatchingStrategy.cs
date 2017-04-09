@@ -9,11 +9,11 @@
 
 using System;
 using System.Collections.Generic;
-using ExceptionManager.Policies;
+using Exceptional.Policies;
 
 #endregion
 
-namespace ExceptionManager.Strategies
+namespace Exceptional.Strategies
 {
     public interface IPolicyMatchingStrategy
     {

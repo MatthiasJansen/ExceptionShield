@@ -2,10 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>net4.6</TargetFramework>
+    <Authors>Matthias Jansen</Authors>
+    <Company />
+    <Description>Exceptional is an exception manager with the simple goal to make exception management exceptionally easy.</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="10.2.1" />
   </ItemGroup>
 
 </Project>

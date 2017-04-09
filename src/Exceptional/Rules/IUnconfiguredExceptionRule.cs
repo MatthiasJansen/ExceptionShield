@@ -11,7 +11,7 @@ using System;
 
 #endregion
 
-namespace ExceptionManager.Rules
+namespace Exceptional.Rules
 {
     public interface IUnconfiguredExceptionRule
     {

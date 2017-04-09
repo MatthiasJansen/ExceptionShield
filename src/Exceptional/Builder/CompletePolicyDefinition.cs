@@ -8,11 +8,11 @@
 #region imports
 
 using System;
-using ExceptionManager.Policies;
+using Exceptional.Policies;
 
 #endregion
 
-namespace ExceptionManager.Builder
+namespace Exceptional.Builder
 {
     public class CompletePolicyDefinition<TSrc, TEnd>
         where TSrc : Exception

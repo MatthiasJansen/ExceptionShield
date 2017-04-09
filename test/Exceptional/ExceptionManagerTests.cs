@@ -9,14 +9,15 @@
 
 using System;
 using System.Linq;
-using ExceptionManager.Builder;
-using ExceptionManager.Exceptions;
-using ExceptionManager.Handlers;
+using Exceptional.Builder;
+using Exceptional.Exceptions;
+using Exceptional.Handlers;
+using Exceptional.Rules;
 using NUnit.Framework;
 
 #endregion
 
-namespace ExceptionManagerTests
+namespace Exceptional.Test
 {
     [TestFixture]
     public class ExceptionManagerTests
@@ -44,24 +45,6 @@ namespace ExceptionManagerTests
         }
 
         [Test]
-        public void ByDefaultReturnsExceptionWhenNoPolicyDefined()
-        {
-            var manager = new ExceptionManager.ExceptionManager();
-
-            var handlerT01 = new TestExceptionHandler<DummyException>();
-
-            var policy1 =
-                PolicyGroupBuilder.Create<DummyException, DummyException>(d => d
-                    .StartAndComplete(handlerT01));
-
-            manager.AddPolicyGroup(policy1);
-
-            var exception = manager.Handle(new OutOfMemoryException());
-
-            Assert.IsInstanceOf<OutOfMemoryException>(exception);
-        }
-
-        [Test]
         public void FailureBehaviour01()
         {
             var policy1 =
@@ -72,7 +55,7 @@ namespace ExceptionManagerTests
                 PolicyGroupBuilder.Create<OutOfMemoryException, ApplicationException>(d => d
                     .StartAndComplete(new ExceptionHandler<OutOfMemoryException, ApplicationException>()));
 
-            var manager = new ExceptionManager.ExceptionManager();
+            var manager = new ExceptionManager();
             manager.AddPolicyGroup(policy1);
 
             Assert.Throws<ExceptionManagerConfigurationException>(() => manager.AddPolicyGroup(policy2));
@@ -87,24 +70,26 @@ namespace ExceptionManagerTests
             var policy2 = PolicyGroupBuilder.Create<OutOfMemoryException, NullReferenceException>(d => d
                 .StartAndComplete(new ExceptionHandler<OutOfMemoryException, NullReferenceException>()));
 
-            var manager = new ExceptionManager.ExceptionManager();
+            var manager = new ExceptionManager();
             manager.AddPolicyGroup(policy1);
 
             Assert.Throws<ExceptionManagerConfigurationException>(() => manager.AddPolicyGroup(policy2));
         }
 
         [Test]
-        public void ShouldNotThrowWhenContextIsEmpty()
+        public void ShouldThrowPolicyMissingException1()
         {
-            var manager = new ExceptionManager.ExceptionManager();
-            Assert.That(() => manager.Handle(new OutOfMemoryException(), string.Empty), Throws.Nothing);
+            var manager = new ExceptionManager();
+            Assert.That(() => manager.Handle(new OutOfMemoryException(), string.Empty),
+                Throws.TypeOf<PolicyMissingException>());
         }
 
         [Test]
-        public void ShouldNotThrowWhenContextIsNull()
+        public void ShouldThrowPolicyMissingException2()
         {
-            var manager = new ExceptionManager.ExceptionManager();
-            Assert.That(() => manager.Handle(new OutOfMemoryException(), null), Throws.Nothing);
+            var manager = new ExceptionManager();
+            Assert.That(() => manager.Handle(new OutOfMemoryException(), null),
+                Throws.TypeOf<PolicyMissingException>());
         }
 
 
@@ -112,42 +97,32 @@ namespace ExceptionManagerTests
         [Description(@"Tests the building a simple policy with a single conversion step.")]
         public void T1()
         {
-            //var policy1 =
-            //    PolicyGroupBuilder.Create<OutOfMemoryException, ApplicationException>()
-            //        .StartAndComplete(() => new ExceptionHandler<OutOfMemoryException, ApplicationException>());
-
-            var policy1 = PolicyGroupBuilder.Create<OutOfMemoryException, ApplicationException>
-            (
-                d => d.StartAndComplete(new ExceptionHandler<OutOfMemoryException, ApplicationException>())
+            var policy1 = PolicyGroupBuilder.Create<OutOfMemoryException, ApplicationException>(d => d
+                .StartAndComplete(new ExceptionHandler<OutOfMemoryException, ApplicationException>())
             );
 
             Assert.IsNotNull(policy1);
 
-            var manager = new ExceptionManager.ExceptionManager();
+            var manager = new ExceptionManager();
             manager.AddPolicyGroup(policy1);
 
-            var result = manager.Handle(new OutOfMemoryException());
-
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<ApplicationException>(result);
+            Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<ApplicationException>());
         }
 
         [Test]
         public void T2()
         {
-            var policy2 = PolicyGroupBuilder.Create<OutOfMemoryException, ApplicationException>
-            (d => d.Start(new ExceptionHandler<OutOfMemoryException, ArgumentException>())
-                .ThenComplete(new ExceptionHandler<ArgumentException, ApplicationException>()));
+            var policy2 = PolicyGroupBuilder.Create<OutOfMemoryException, ApplicationException>(d => d
+                .Start(new ExceptionHandler<OutOfMemoryException, ArgumentException>())
+                .ThenComplete(new ExceptionHandler<ArgumentException, ApplicationException>())
+            );
 
             Assert.IsNotNull(policy2);
 
-            var manager = new ExceptionManager.ExceptionManager();
+            var manager = new ExceptionManager();
             manager.AddPolicyGroup(policy2);
 
-            var result = manager.Handle(new OutOfMemoryException());
-
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<ApplicationException>(result);
+            Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<ApplicationException>());
         }
 
         [Test]
@@ -156,23 +131,37 @@ namespace ExceptionManagerTests
             var policy3 = PolicyGroupBuilder.Create<OutOfMemoryException, ApplicationException>(d => d
                 .Start(new ExceptionHandler<OutOfMemoryException, ArgumentException>())
                 .Then(new ExceptionHandler<ArgumentException, AccessViolationException>())
-                .ThenComplete(new ExceptionHandler<AccessViolationException, ApplicationException>()));
+                .ThenComplete(new ExceptionHandler<AccessViolationException, ApplicationException>())
+            );
 
             Assert.IsNotNull(policy3);
 
-            var manager = new ExceptionManager.ExceptionManager();
+            var manager = new ExceptionManager();
             manager.AddPolicyGroup(policy3);
 
-            var result = manager.Handle(new OutOfMemoryException());
+            Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<ApplicationException>());
+        }
 
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<ApplicationException>(result);
+        [Test]
+        public void ThrowsExceptionWhenNoTerminatorDefined()
+        {
+            var manager = new ExceptionManager();
+
+            var handlerT01 = new TestExceptionHandler<DummyException>();
+
+            var policy1 =
+                PolicyGroupBuilder.Create<DummyException, DummyException>(d => d
+                    .StartAndComplete(handlerT01));
+
+            manager.AddPolicyGroup(policy1);
+
+            Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<PolicyMissingException>());
         }
 
         [Test]
         public void UnWrappRuleTest01()
         {
-            var manager = new ExceptionManager.ExceptionManager();
+            var manager = new ExceptionManager();
 
             var handlerT01 = new TestExceptionHandler<DummyException>();
             var handlerT02 = new UnwrapExceptionHandler(manager);
@@ -191,7 +180,7 @@ namespace ExceptionManagerTests
             var exception = new AggregateException("Greetings from outer exception",
                 Enumerable.Repeat(new DummyException("Greetings from inner Exception."), 1));
 
-            manager.Handle(exception);
+            Assert.That(() => manager.Handle(exception), Throws.TypeOf<DummyException>());
 
             Assert.IsTrue(handlerT01.WasHandled);
         }
