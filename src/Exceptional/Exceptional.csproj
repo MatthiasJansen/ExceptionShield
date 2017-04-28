@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net4.6</TargetFramework>
+    <TargetFramework>net451</TargetFramework>
     <Authors>Matthias Jansen</Authors>
     <Company />
     <Description>Exceptional is an exception manager with the simple goal to make exception management exceptionally easy.</Description>
@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="10.2.1" />
+    <PackageReference Include="JetBrains.Annotations" Version="10.4.0" />
   </ItemGroup>
 
 </Project>
