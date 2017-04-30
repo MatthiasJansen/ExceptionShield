@@ -5,7 +5,7 @@
     <Authors>Matthias Jansen</Authors>
     <Company />
     <Description>Exceptional is an exception manager with the simple goal to make exception management exceptionally easy.</Description>
-    <SignAssembly>True</SignAssembly>
+    <SignAssembly>False</SignAssembly>
     <AssemblyOriginatorKeyFile>Exceptional.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
   </PropertyGroup>
