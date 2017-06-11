@@ -10,7 +10,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Exceptional.Builder;
+using Exceptional.Installer.Builder;
 using Exceptional.Policies;
 using Exceptional.Strategies;
 using NUnit.Framework;

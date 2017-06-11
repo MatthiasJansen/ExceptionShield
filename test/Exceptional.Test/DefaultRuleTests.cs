@@ -8,7 +8,7 @@
 #region imports
 
 using System;
-using Exceptional.Builder;
+using Exceptional.Installer.Builder;
 using Exceptional.Rules;
 using NUnit.Framework;
 using Rhino.Mocks;
@@ -29,8 +29,6 @@ namespace Exceptional.Test
                 .Repeat.Once()
                 .Return(new PolicyMissingException());
 
-            var manager = new ExceptionManager(defaultRule);
-
             var handlerT01 = new TestExceptionHandler<DummyException>();
 
             var policyGroup = PolicyGroupBuilder
@@ -38,9 +36,11 @@ namespace Exceptional.Test
                 (d => d.StartAndComplete(handlerT01)
                 );
 
+            ExceptionManagerConfiguration.SetUnconfiguredExceptionRule(defaultRule);
 
-            manager.AddPolicyGroup(policyGroup);
-
+            ExceptionManagerConfiguration.AddPolicyGroup(policyGroup);
+            var manager = ExceptionManagerConfiguration.LockAndCreateManager();
+            
             Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<PolicyMissingException>());
 
             defaultRule.AssertWasCalled(r => r.Apply(Arg<Exception>.Is.Anything));

@@ -9,9 +9,9 @@
 
 using System;
 using System.Linq;
-using Exceptional.Builder;
 using Exceptional.Exceptions;
 using Exceptional.Handlers;
+using Exceptional.Installer.Builder;
 using Exceptional.Rules;
 using NUnit.Framework;
 
@@ -55,10 +55,11 @@ namespace Exceptional.Test
                 PolicyGroupBuilder.Create<OutOfMemoryException, ApplicationException>(d => d
                     .StartAndComplete(new ExceptionHandler<OutOfMemoryException, ApplicationException>()));
 
-            var manager = new ExceptionManager();
-            manager.AddPolicyGroup(policy1);
+            ExceptionManagerConfiguration.AddPolicyGroup(policy1);
+            var manager = ExceptionManagerConfiguration.LockAndCreateManager();
 
-            Assert.Throws<ExceptionManagerConfigurationException>(() => manager.AddPolicyGroup(policy2));
+            Assert.Throws<ExceptionManagerConfigurationException>(
+                () => ExceptionManagerConfiguration.AddPolicyGroup(policy2));
         }
 
         [Test]
@@ -70,16 +71,17 @@ namespace Exceptional.Test
             var policy2 = PolicyGroupBuilder.Create<OutOfMemoryException, NullReferenceException>(d => d
                 .StartAndComplete(new ExceptionHandler<OutOfMemoryException, NullReferenceException>()));
 
-            var manager = new ExceptionManager();
-            manager.AddPolicyGroup(policy1);
+            ExceptionManagerConfiguration.AddPolicyGroup(policy1);
+            var manager = ExceptionManagerConfiguration.LockAndCreateManager();
 
-            Assert.Throws<ExceptionManagerConfigurationException>(() => manager.AddPolicyGroup(policy2));
+            Assert.Throws<ExceptionManagerConfigurationException>(
+                () => ExceptionManagerConfiguration.AddPolicyGroup(policy2));
         }
 
         [Test]
         public void ShouldThrowPolicyMissingException1()
         {
-            var manager = new ExceptionManager();
+            var manager = ExceptionManagerConfiguration.LockAndCreateManager();
             Assert.That(() => manager.Handle(new OutOfMemoryException(), string.Empty),
                 Throws.TypeOf<PolicyMissingException>());
         }
@@ -87,7 +89,7 @@ namespace Exceptional.Test
         [Test]
         public void ShouldThrowPolicyMissingException2()
         {
-            var manager = new ExceptionManager();
+            var manager = ExceptionManagerConfiguration.LockAndCreateManager();
             Assert.That(() => manager.Handle(new OutOfMemoryException(), null),
                 Throws.TypeOf<PolicyMissingException>());
         }
@@ -102,9 +104,9 @@ namespace Exceptional.Test
             );
 
             Assert.IsNotNull(policy1);
+            ExceptionManagerConfiguration.AddPolicyGroup(policy1);
+            var manager = ExceptionManagerConfiguration.LockAndCreateManager();
 
-            var manager = new ExceptionManager();
-            manager.AddPolicyGroup(policy1);
 
             Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<ApplicationException>());
         }
@@ -119,8 +121,8 @@ namespace Exceptional.Test
 
             Assert.IsNotNull(policy2);
 
-            var manager = new ExceptionManager();
-            manager.AddPolicyGroup(policy2);
+            ExceptionManagerConfiguration.AddPolicyGroup(policy2);
+            var manager = ExceptionManagerConfiguration.LockAndCreateManager();
 
             Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<ApplicationException>());
         }
@@ -136,8 +138,8 @@ namespace Exceptional.Test
 
             Assert.IsNotNull(policy3);
 
-            var manager = new ExceptionManager();
-            manager.AddPolicyGroup(policy3);
+            ExceptionManagerConfiguration.AddPolicyGroup(policy3);
+            var manager = ExceptionManagerConfiguration.LockAndCreateManager();
 
             Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<ApplicationException>());
         }
@@ -145,15 +147,12 @@ namespace Exceptional.Test
         [Test]
         public void ThrowsExceptionWhenNoTerminatorDefined()
         {
-            var manager = new ExceptionManager();
-
             var handlerT01 = new TestExceptionHandler<DummyException>();
 
-            var policy1 =
-                PolicyGroupBuilder.Create<DummyException, DummyException>(d => d
+            var policy1 = PolicyGroupBuilder.Create<DummyException, DummyException>(d => d
                     .StartAndComplete(handlerT01));
-
-            manager.AddPolicyGroup(policy1);
+            ExceptionManagerConfiguration.AddPolicyGroup(policy1);
+            var manager = ExceptionManagerConfiguration.LockAndCreateManager();
 
             Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<PolicyMissingException>());
         }
@@ -161,24 +160,19 @@ namespace Exceptional.Test
         [Test]
         public void UnWrappRuleTest01()
         {
-            var manager = new ExceptionManager();
-
             var handlerT01 = new TestExceptionHandler<DummyException>();
-            var handlerT02 = new UnwrapExceptionHandler(manager);
 
-            var policy1 =
-                PolicyGroupBuilder.Create<AggregateException, AggregateException>(d => d
-                    .StartAndComplete(handlerT02));
 
             var policy2 =
                 PolicyGroupBuilder.Create<DummyException, DummyException>(d => d
                     .StartAndComplete(handlerT01));
 
-            manager.AddPolicyGroup(policy1);
-            manager.AddPolicyGroup(policy2);
+            ExceptionManagerConfiguration.AddPolicyGroup(policy2);
 
             var exception = new AggregateException("Greetings from outer exception",
                 Enumerable.Repeat(new DummyException("Greetings from inner Exception."), 1));
+
+            var manager = ExceptionManagerConfiguration.LockAndCreateManager();
 
             Assert.That(() => manager.Handle(exception), Throws.TypeOf<DummyException>());
 

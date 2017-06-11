@@ -41,7 +41,7 @@ namespace Exceptional.Test
         }
 
         [Test]
-        public void T1()
+        public void PolicyByContextOrDefault_DoesNotThrow_WhenContextIsNull()
         {
             var epg = new ExceptionPolicyGroup<ArgumentNullException, ArgumentOutOfRangeException>(
                 new ReadOnlyDictionary<string, ExceptionPolicy<ArgumentNullException, ArgumentOutOfRangeException>>(
