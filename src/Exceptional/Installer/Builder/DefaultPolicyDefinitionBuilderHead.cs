@@ -11,7 +11,7 @@ using System;
 
 #endregion
 
-namespace Exceptional.Builder
+namespace Exceptional.Installer.Builder
 {
     public class DefaultPolicyDefinitionBuilderHead<TSrc, TEnd> : PolicyDefBuilderHead<TSrc, TEnd>
         where TSrc : Exception

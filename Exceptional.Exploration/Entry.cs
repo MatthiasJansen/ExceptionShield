@@ -9,12 +9,22 @@ using Exceptional.Policies;
 
 namespace Exceptional.Exploration
 {
+    public class DummyWP
+    {
+        private readonly string text;
+
+        public DummyWP(string text)
+        {
+            this.text = text;
+        }
+    }
+
     public class AccessViolationPolicyInstaller : PolicyGroupInstaller<AccessViolationException, Exception>
     {
         protected override CompletePolicyDefinition<AccessViolationException, Exception> Provide(
             DefaultPolicyDefinitionBuilderHead<AccessViolationException, Exception> builder)
         {
-            return builder.StartAndComplete(new ExceptionHandler<AccessViolationException, Exception>());
+            return builder.StartAndComplete<Exception, ExceptionHandler<AccessViolationException, Exception>>();
         }
 
         protected override IEnumerable<CompletePolicyDefinition<AccessViolationException, Exception>> Provide(
@@ -22,11 +32,11 @@ namespace Exceptional.Exploration
         {
             yield return builder
                 .SetContext("sql")
-                .StartAndComplete(new ExceptionHandler<AccessViolationException, Exception>());
+                .StartAndComplete<Exception, ExceptionHandler<AccessViolationException, Exception>>();
 
             yield return builder
                 .SetContext("wmi")
-                .StartAndComplete(new ExceptionHandler<AccessViolationException, Exception>());
+                .StartAndComplete<Exception, ExceptionHandler<AccessViolationException, Exception>>();
         }
     }
 
@@ -34,6 +44,8 @@ namespace Exceptional.Exploration
     {
         public static void Main(string[] args)
         {
+            var dummy = Activator.CreateInstance<DummyWP>();
+
             ExceptionManagerConfiguration.AddPolicyGroupFrom<AccessViolationPolicyInstaller>();
 
             var manager = ExceptionManagerConfiguration.LockAndCreateManager();

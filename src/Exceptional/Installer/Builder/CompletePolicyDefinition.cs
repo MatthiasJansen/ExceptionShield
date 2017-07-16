@@ -9,10 +9,11 @@
 
 using System;
 using Exceptional.Policies;
+using Exceptional.Terminators;
 
 #endregion
 
-namespace Exceptional.Builder
+namespace Exceptional.Installer.Builder
 {
     public class CompletePolicyDefinition<TSrc, TEnd>
         where TSrc : Exception

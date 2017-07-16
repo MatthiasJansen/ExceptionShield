@@ -10,6 +10,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Exceptional.Handlers;
 using Exceptional.Installer.Builder;
 using Exceptional.Policies;
 using Exceptional.Strategies;
@@ -40,12 +41,12 @@ namespace Exceptional.Test
             {
                 get
                 {
-                    var g1Cn = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete(null));
-                    var g2Cn = PolicyGroupBuilder.Create<L2Ex, Exception>(d => d.StartAndComplete(null));
-                    var g3Cn = PolicyGroupBuilder.Create<L3Ex, Exception>(d => d.StartAndComplete(null));
+                    var g1Cn = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete<Exception, ExceptionHandler<L1Ex, Exception>>());
+                    var g2Cn = PolicyGroupBuilder.Create<L2Ex, Exception>(d => d.StartAndComplete<Exception, ExceptionHandler<L2Ex, Exception>>());
+                    var g3Cn = PolicyGroupBuilder.Create<L3Ex, Exception>(d => d.StartAndComplete<Exception, ExceptionHandler<L3Ex, Exception>>());
 
-                    var g1Cs = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete(null),
-                        s => s.SetContext("special").StartAndComplete(null));
+                    var g1Cs = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete<Exception, ExceptionHandler<L1Ex, Exception>>(),
+                        s => s.SetContext("special").StartAndComplete<Exception, ExceptionHandler<L1Ex, Exception>>());
 
                     yield return new TestCaseData(
                         typeof(L3Ex),

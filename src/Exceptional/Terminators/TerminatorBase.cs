@@ -16,6 +16,23 @@ namespace Exceptional.Terminators
     public abstract class TerminatorBase<TEnd>
         where TEnd : Exception
     {
-        public abstract void Terminate(TEnd exception);
+        /// <summary>
+        /// The terminate method is guaranteed to never throw.
+        /// Any exception thrown by TerminateInner will be swallowed.
+        /// </summary>
+        /// <param name="exception"></param>
+        public void Terminate(TEnd exception)
+        {
+            try
+            {
+                TerminateInner(exception);
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+
+        protected abstract void TerminateInner(TEnd exception);
     }
 }

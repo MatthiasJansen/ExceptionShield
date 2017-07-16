@@ -16,11 +16,13 @@ namespace Exceptional
 {
     public interface IExceptionManager
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TSrc"></typeparam>
+        /// <param name="exception"></param>
+        /// <param name="context"></param>
         void Handle<TSrc>(TSrc exception, string context = Context.Default)
             where TSrc : Exception;
-
-        void AddPolicyGroup<TSrc, TEnd>(ExceptionPolicyGroup<TSrc, TEnd> policyGroup)
-            where TSrc : Exception
-            where TEnd : Exception;
     }
 }

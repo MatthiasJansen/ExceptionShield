@@ -21,7 +21,7 @@ namespace Exceptional.Test
         [Test]
         public void Assert_ThatCorrectTypeGuidsAreAvailable()
         {
-            var policy = new ExceptionPolicy<NotFiniteNumberException, NotSupportedException>(null, null);
+            var policy = new ExceptionPolicy<NotFiniteNumberException, NotSupportedException>(null);
 
             Assert.That(policy.Handles, Is.EqualTo(typeof(NotFiniteNumberException)));
             Assert.That(policy.Returns, Is.EqualTo(typeof(NotSupportedException)));

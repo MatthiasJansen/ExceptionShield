@@ -18,8 +18,12 @@ namespace Exceptional.Test
     [TestFixture]
     public class DummyTerminatorBaseTests
     {
-        internal class SpecializedDummyTerminator : DummyTerminatorBase<Exception>
+        internal class SpecializedDummyTerminator : TerminatorBase<Exception>
         {
+            protected override void TerminateInner(Exception exception)
+            {
+                
+            }
         }
 
         [Test]

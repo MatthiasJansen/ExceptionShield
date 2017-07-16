@@ -33,7 +33,7 @@ namespace Exceptional.Test
 
             var policyGroup = PolicyGroupBuilder
                 .Create<DummyException, DummyException>
-                (d => d.StartAndComplete(handlerT01)
+                (d => d.StartAndComplete<DummyException, TestExceptionHandler<DummyException>>()
                 );
 
             ExceptionManagerConfiguration.SetUnconfiguredExceptionRule(defaultRule);

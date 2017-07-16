@@ -15,7 +15,7 @@ using Exceptional.Terminators;
 
 #endregion
 
-namespace Exceptional.Builder
+namespace Exceptional.Installer.Builder
 {
     public class PolicyDefBuilderPart<TSrc, TCur, TNxt, TEnd>
         where TSrc : Exception
@@ -24,29 +24,28 @@ namespace Exceptional.Builder
         where TEnd : Exception
     {
         private readonly string context;
-        private readonly Dictionary<Type, ExceptionHandlerBase> handlers;
+        private readonly Dictionary<Type, Type> handlers;
 
-        public PolicyDefBuilderPart(string context, Dictionary<Type, ExceptionHandlerBase> handlers,
-            ExceptionHandler<TCur, TNxt> handler)
+        public PolicyDefBuilderPart(string context, Dictionary<Type, Type> handlers,
+            Type defaultHandler)
         {
-            handlers.Add(typeof(TCur), handler);
+            handlers.Add(typeof(TCur), defaultHandler);
 
             this.handlers = handlers;
             this.context = context;
         }
 
-        public PolicyDefBuilderPart<TSrc, TNxt, TTar, TEnd> Then<TTar>(ExceptionHandler<TNxt, TTar> thenHandler)
+        public PolicyDefBuilderPart<TSrc, TNxt, TTar, TEnd> Then<TTar, THnd>()
             where TTar : Exception
         {
-            return new PolicyDefBuilderPart<TSrc, TNxt, TTar, TEnd>(context, handlers, thenHandler);
+            return new PolicyDefBuilderPart<TSrc, TNxt, TTar, TEnd>(context, handlers, typeof(THnd));
         }
 
-        public CompletePolicyDefinition<TSrc, TEnd> ThenComplete(ExceptionHandler<TNxt, TEnd> handler,
-            TerminatorBase<TEnd> terminatorBase = null)
+        public CompletePolicyDefinition<TSrc, TEnd> ThenComplete<THnd>()
         {
-            handlers.Add(typeof(TNxt), handler);
+            handlers.Add(typeof(TNxt), typeof(THnd));
 
-            var policy = new ExceptionPolicy<TSrc, TEnd>(handlers, terminatorBase);
+            var policy = new ExceptionPolicy<TSrc, TEnd>(handlers);
 
             return new CompletePolicyDefinition<TSrc, TEnd>(context, policy);
         }

@@ -1,53 +1,62 @@
-﻿using System;
+﻿#region headers
+
+// Copyright (c) 2017 Matthias Jansen
+// See the LICENSE file in the project root for more information.
+
+#endregion
+
+#region imports
+
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Exceptional.Builder;
+using Exceptional.Handlers;
+using Exceptional.Installer.Builder;
 using Exceptional.Policies;
 using JetBrains.Annotations;
 
+#endregion
+
 namespace Exceptional.Installer
 {
-    public abstract class PolicyGroupInstaller<TSrc, TDst>
-        where TSrc : Exception
+    public interface IPolicyGroupInstaller
+    {
+        ExceptionPolicyGroupBase Provide();
+    }
+
+    public abstract class PolicyGroupInstaller<TSrc, TDst> : IPolicyGroupInstaller where TSrc : Exception
         where TDst : Exception
     {
-        private readonly List<Func<PolicyDefinitionBuilder<TSrc, TDst>, CompletePolicyDefinition<TSrc, TDst>>> ctxCreators = 
-            new List<Func<PolicyDefinitionBuilder<TSrc, TDst>, CompletePolicyDefinition<TSrc, TDst>>>();
-
-        private Func<DefaultPolicyDefinitionBuilderHead<TSrc, TDst>, CompletePolicyDefinition<TSrc, TDst>> defCreator;
-
-        public ExceptionPolicyGroup<TSrc, TDst> Provide()
+        public ExceptionPolicyGroupBase Provide()
         {
-            Define();
-            return PolicyGroupBuilder.Create(defCreator, ctxCreators.ToArray());
+            var hBuilder = new DefaultPolicyDefinitionBuilderHead<TSrc, TDst>();
+            var nBuilder = new PolicyDefinitionBuilder<TSrc, TDst>();
+
+            var defaultPolicy = Provide(hBuilder);
+            var policyDict = new Dictionary<string, ExceptionPolicy<TSrc, TDst>>
+            {
+                {defaultPolicy.Context, defaultPolicy.Policy}
+            };
+
+            var policies = Provide(nBuilder) ?? Enumerable.Empty<CompletePolicyDefinition<TSrc, TDst>>();
+            foreach (var policy in policies)
+            {
+                policyDict.Add(policy.Context, policy.Policy);
+            }
+
+            return
+                new ExceptionPolicyGroup<TSrc, TDst>(
+                    new ReadOnlyDictionary<string, ExceptionPolicy<TSrc, TDst>>(policyDict));
         }
 
-        public abstract void Define();
+        protected abstract CompletePolicyDefinition<TSrc, TDst> Provide(
+            DefaultPolicyDefinitionBuilderHead<TSrc, TDst> builder);
 
-        protected void DefineDefaultPolicy([NotNull] Func<DefaultPolicyDefinitionBuilderHead<TSrc, TDst>, CompletePolicyDefinition<TSrc, TDst>> defPolicy)
+        protected virtual IEnumerable<CompletePolicyDefinition<TSrc, TDst>> Provide(
+            PolicyDefinitionBuilder<TSrc, TDst> builder)
         {
-            if (defPolicy == null)
-            {
-                throw new ArgumentNullException(nameof(defPolicy));
-            }
-            if (defCreator != null)
-            {
-                throw new InvalidOperationException("The default policy has already been defined.");
-            }
-
-            defCreator = defPolicy;
-        }
-
-        protected void DefinePolicy(string context, [NotNull]
-            Func<PolicyDefinitionBuilder<TSrc, TDst>, CompletePolicyDefinition<TSrc, TDst>> ctxPolicy)
-        {
-            if (ctxPolicy == null)
-            {
-                throw new ArgumentNullException(nameof(ctxPolicy));
-            }
-            ctxCreators.Add(ctxPolicy);   
+            yield break;
         }
     }
 }

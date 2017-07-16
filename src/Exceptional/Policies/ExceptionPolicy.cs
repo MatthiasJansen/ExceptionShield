@@ -9,8 +9,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Exceptional.Exceptions;
 using Exceptional.Handlers;
+using Exceptional.Plugable.Resolver;
 using Exceptional.Terminators;
 using JetBrains.Annotations;
 
@@ -18,38 +21,55 @@ using JetBrains.Annotations;
 
 namespace Exceptional.Policies
 {
-    public class ExceptionPolicy<TSrc, TEnd> : ExceptionPolicyBase
+    public class ExceptionPolicy<TSrc, TEnd>
+        : ExceptionPolicy<TSrc, TEnd, VoidTerminator<TEnd>>
+        where TEnd : Exception
+        where TSrc : Exception
+    {
+        public ExceptionPolicy(Dictionary<Type, Type> handlerDefinitions) : base(handlerDefinitions)
+        {
+        }
+    }
+
+    public class ExceptionPolicy<TSrc, TEnd, TTer> : ExceptionPolicyBase
         where TSrc : Exception
         where TEnd : Exception
+        where TTer : TerminatorBase<TEnd>
     {
-        private readonly Dictionary<Type, ExceptionHandlerBase> handlers;
-        private readonly TerminatorBase<TEnd> terminatorBase;
+        private readonly Dictionary<Type, Type> handlerDefinitions;
 
-        public ExceptionPolicy(Dictionary<Type, ExceptionHandlerBase> handlers, TerminatorBase<TEnd> terminatorBase)
+        public ExceptionPolicy(Dictionary<Type, Type> handlerDefinitions)
         {
-            this.handlers = handlers;
-            this.terminatorBase = terminatorBase;
+            this.handlerDefinitions   = handlerDefinitions;
         }
 
         public override Type Handles => typeof(TSrc);
         public override Type Returns => typeof(TEnd);
 
         [CanBeNull]
-        public override Exception Handle(Exception src)
+        public override Exception Handle(IExceptionalResolver resolver, Exception src)
         {
             var cur = src;
-            foreach (var handler in handlers)
+            foreach (var handlerDesc in handlerDefinitions)
             {
-                cur = handler.Value.Handle(cur);
+                var handler  = (ExceptionHandlerBase) resolver.Resolve(handlerDesc.Value);
+
+                cur = handler?.Handle(cur);
                 if (cur == null)
+                {
                     throw new ExceptionManagerConfigurationException();
+                }
             }
 
-            // No terminator was defined, the exception will be returned for re-throwing.
-            if (terminatorBase == null)
-                return cur;
 
-            terminatorBase.Terminate((TEnd) cur);
+            // No terminator was defined, the exception will be returned for re-throwing.
+            if (typeof(TTer) == typeof(VoidTerminator<TEnd>))
+            {
+                return cur;
+            }
+
+            var terminator = resolver.Resolve<TTer>();
+            terminator.Terminate((TEnd) cur);
 
             return null;
         }

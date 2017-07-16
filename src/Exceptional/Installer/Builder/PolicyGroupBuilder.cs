@@ -14,7 +14,7 @@ using Exceptional.Policies;
 
 #endregion
 
-namespace Exceptional.Builder
+namespace Exceptional.Installer.Builder
 {
     public class PolicyGroupBuilder
     {

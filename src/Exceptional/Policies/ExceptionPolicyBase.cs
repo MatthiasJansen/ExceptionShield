@@ -8,6 +8,7 @@
 #region imports
 
 using System;
+using Exceptional.Plugable.Resolver;
 
 #endregion
 
@@ -18,6 +19,6 @@ namespace Exceptional.Policies
         public abstract Type Handles { get; }
         public abstract Type Returns { get; }
 
-        public abstract Exception Handle(Exception src);
+        public abstract Exception Handle(IExceptionalResolver resolver, Exception src);
     }
 }
