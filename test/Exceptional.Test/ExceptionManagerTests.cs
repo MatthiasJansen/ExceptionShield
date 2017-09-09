@@ -39,6 +39,20 @@ namespace Exceptional.Test
                 return src;
             }
         }
+        internal class TestExceptionHandlerB<TSrc> : ExceptionHandler<TSrc, DummyException>
+            where TSrc : Exception
+        {
+            public bool WasHandled { get; private set; }
+
+            public override DummyException Handle(TSrc src)
+            {
+                Console.WriteLine($"Handled Exception of type: {src.GetType()} with message: {src.Message}");
+
+                WasHandled = true;
+                var next = new DummyException(src.Message);
+                return next;
+            }
+        }
 
         internal class DummyException : Exception
         {
@@ -188,11 +202,11 @@ namespace Exceptional.Test
         public void UnWrappRuleTest01()
         {
             var policy2 = PolicyGroupBuilder
-                .Create<DummyException, DummyException>
+                .Create<AggregateException, DummyException>
                 (
-                 bd => bd.StartAndComplete<DummyException, TestExceptionHandler<DummyException>>(),
+                 bd => bd.StartAndComplete<DummyException, TestExceptionHandlerB<AggregateException>>(),
                  b1 => b1.SetContext("marten")
-                         .StartAndComplete<DummyException, TestExceptionHandler<DummyException>>()
+                         .StartAndComplete<DummyException, TestExceptionHandlerB<AggregateException>>()
                 );
 
             var exception = new AggregateException("Greetings from outer exception",

@@ -82,7 +82,15 @@ namespace Exceptional
 
         public ExceptionManager(IEnumerable<ExceptionPolicyGroupBase> policyGroupDictionary, IUnconfiguredExceptionRule defaultRule = null, IPolicyMatchingStrategy strategy = null)
         {
-            this.policyGroupDictionary = policyGroupDictionary.ToDictionary(i => i.Handles, i => i);
+            try
+            {
+                this.policyGroupDictionary = policyGroupDictionary.ToDictionary(i => i.Handles, i => i);
+            }
+            catch (ArgumentException e)
+            {
+                throw new ExceptionManagerConfigurationException();
+            }
+            
             this.strategy = strategy ?? new DefaultPolicyMatchingStrategy();
             this.defaultRule = defaultRule ?? new PolicyMissingDefaultRule();
         }
