@@ -50,7 +50,7 @@ namespace Exceptional.Policies
         public override Exception Handle(IExceptionalResolver resolver, Exception src)
         {
             var cur = src;
-            foreach (var handlerDesc in handlerDefinitions)
+            foreach (var handlerDesc in this.handlerDefinitions)
             {
                 var handler  = (ExceptionHandlerBase) resolver.Resolve(handlerDesc.Value);
 

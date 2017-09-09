@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net451</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <Authors>Matthias Jansen</Authors>
     <Company />
     <Description>Exceptional is an exception manager with the simple goal to make exception management exceptionally easy.</Description>

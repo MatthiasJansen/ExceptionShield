@@ -113,10 +113,10 @@ namespace Exceptional
             if (string.IsNullOrWhiteSpace(context))
                 context = Context.Default;
 
-            var policy = strategy.MatchPolicy(policyGroupDictionary, exception.GetType(), context);
+            var policy = this.strategy.MatchPolicy(this.policyGroupDictionary, exception.GetType(), context);
             return policy != null
-                ? policy.Handle(resolver, exception)
-                : defaultRule.Apply(exception);
+                ? policy.Handle(this.resolver, exception)
+                : this.defaultRule.Apply(exception);
         }
     }
 }

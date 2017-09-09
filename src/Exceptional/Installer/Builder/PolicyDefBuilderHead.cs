@@ -33,7 +33,7 @@ namespace Exceptional.Installer.Builder
             where THnd : ExceptionHandler<TSrc, TNxt>
         {
             return new PolicyDefBuilderPart<TSrc, TSrc, TNxt, TEnd>
-                (context,
+                (this.context,
                  new Dictionary<Type, Type>(), typeof(THnd));
         }
 
@@ -48,7 +48,7 @@ namespace Exceptional.Installer.Builder
 
             var policy = new ExceptionPolicy<TSrc, TEnd>(handlers);
 
-            return new CompletePolicyDefinition<TSrc, TEnd>(context, policy);
+            return new CompletePolicyDefinition<TSrc, TEnd>(this.context, policy);
         }
     }
 }

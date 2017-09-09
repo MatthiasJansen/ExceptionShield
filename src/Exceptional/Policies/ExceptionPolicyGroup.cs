@@ -35,9 +35,9 @@ namespace Exceptional.Policies
 
             var policy = default(ExceptionPolicy<TSrc, TEnd>);
             if (context != Context.Default)
-                policy = policyDictionary.GetValueByKeyOrDefault(context);
+                policy = this.policyDictionary.GetValueByKeyOrDefault(context);
 
-            return policy ?? policyDictionary.GetValueByKeyOrDefault(Context.Default);
+            return policy ?? this.policyDictionary.GetValueByKeyOrDefault(Context.Default);
         }
     }
 }

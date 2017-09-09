@@ -38,16 +38,16 @@ namespace Exceptional.Installer.Builder
         public PolicyDefBuilderPart<TSrc, TNxt, TTar, TEnd> Then<TTar, THnd>()
             where TTar : Exception
         {
-            return new PolicyDefBuilderPart<TSrc, TNxt, TTar, TEnd>(context, handlers, typeof(THnd));
+            return new PolicyDefBuilderPart<TSrc, TNxt, TTar, TEnd>(this.context, this.handlers, typeof(THnd));
         }
 
         public CompletePolicyDefinition<TSrc, TEnd> ThenComplete<THnd>()
         {
-            handlers.Add(typeof(TNxt), typeof(THnd));
+            this.handlers.Add(typeof(TNxt), typeof(THnd));
 
-            var policy = new ExceptionPolicy<TSrc, TEnd>(handlers);
+            var policy = new ExceptionPolicy<TSrc, TEnd>(this.handlers);
 
-            return new CompletePolicyDefinition<TSrc, TEnd>(context, policy);
+            return new CompletePolicyDefinition<TSrc, TEnd>(this.context, policy);
         }
     }
 }
