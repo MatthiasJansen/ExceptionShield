@@ -8,11 +8,10 @@
 #region imports
 
 using System;
-using Exceptional.Terminators;
 
 #endregion
 
-namespace Exceptional.Policies
+namespace Exceptional.Terminators
 {
     public sealed class VoidTerminator<TEnd> : TerminatorBase<TEnd>
         where TEnd : Exception
@@ -20,15 +19,6 @@ namespace Exceptional.Policies
         protected override void TerminateInner(TEnd exception)
         {
             // Do nothing.
-        }
-    }
-
-    public sealed class RethrowTerminator<TEnd> : TerminatorBase<TEnd>
-        where TEnd : Exception
-    {
-        protected override void TerminateInner(TEnd exception)
-        {
-            throw exception;
         }
     }
 }

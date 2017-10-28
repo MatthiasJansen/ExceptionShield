@@ -86,7 +86,7 @@ namespace Exceptional
             {
                 this.policyGroupDictionary = policyGroupDictionary.ToDictionary(i => i.Handles, i => i);
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 throw new ExceptionManagerConfigurationException();
             }
