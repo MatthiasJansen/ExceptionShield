@@ -8,6 +8,11 @@
     <SignAssembly>False</SignAssembly>
     <AssemblyOriginatorKeyFile>Exceptional.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseUrl>https://github.com/MatthiasJansen/Exceptional/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/MatthiasJansen/Exceptional</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/MatthiasJansen/Exceptional</RepositoryUrl>
+    <PackageTags>manager handler exception</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
