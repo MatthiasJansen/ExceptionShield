@@ -8,16 +8,14 @@
     <SignAssembly>False</SignAssembly>
     <AssemblyOriginatorKeyFile>Exceptional.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://github.com/MatthiasJansen/Exceptional/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/MatthiasJansen/Exceptional</PackageProjectUrl>
     <RepositoryUrl>https://github.com/MatthiasJansen/Exceptional</RepositoryUrl>
     <PackageTags>manager handler exception</PackageTags>
+    
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
