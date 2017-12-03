@@ -6,4 +6,4 @@ install:
 - dotnet restore
 script:
 - dotnet build
-- dotnet test Exceptional.Test/Exceptional.Test.csproj
+- dotnet test test/Exceptional.Test/Exceptional.Test.csproj
