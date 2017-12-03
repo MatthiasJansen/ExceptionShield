@@ -22,39 +22,35 @@ using JetBrains.Annotations;
 
 namespace Exceptional
 {
-    public static class ExceptionManagerConfiguration
+    public class ExceptionManagerConfiguration
     {
-        private static bool isLockedAgainstChanges = false;
+        private readonly Dictionary<Type, ExceptionPolicyGroupBase> PolicyGroupDictionary =
+    new Dictionary<Type, ExceptionPolicyGroupBase>();
 
-        private static IUnconfiguredExceptionRule rule;
-        public static void SetUnconfiguredExceptionRule(IUnconfiguredExceptionRule rule)
+        private IUnconfiguredExceptionRule rule;
+        public void SetUnconfiguredExceptionRule(IUnconfiguredExceptionRule rule)
         {
-            if (isLockedAgainstChanges) { return;}
-
-            ExceptionManagerConfiguration.rule = rule;
+            this.rule = rule;
         }
 
-        private static IPolicyMatchingStrategy strategy;
-        public static void SetPolicyMatchingStrategy(IPolicyMatchingStrategy strategy)
+        private IPolicyMatchingStrategy strategy;
+        public void SetPolicyMatchingStrategy(IPolicyMatchingStrategy strategy)
         {
-            if (isLockedAgainstChanges) { return; }
-            ExceptionManagerConfiguration.strategy = strategy;
+            this.strategy = strategy;
         }
 
-        private static readonly Dictionary<Type, ExceptionPolicyGroupBase> policyGroupDictionary =
-            new Dictionary<Type, ExceptionPolicyGroupBase>();
-        public static void AddPolicyGroup(ExceptionPolicyGroupBase policyGroup)
+
+        public void AddPolicyGroup(ExceptionPolicyGroupBase policyGroup)
         {
-            if (isLockedAgainstChanges) { return; }
             if (policyGroup == null)
                 throw new ArgumentNullException(nameof(policyGroup));
-            if (policyGroupDictionary.ContainsKey(policyGroup.Handles))
+            if (this.PolicyGroupDictionary.ContainsKey(policyGroup.Handles))
                 throw new ExceptionManagerConfigurationException();
 
-            policyGroupDictionary.Add(policyGroup.Handles, policyGroup);
+            this.PolicyGroupDictionary.Add(policyGroup.Handles, policyGroup);
         }
 
-        public static void AddPolicyGroupFrom<TInstaller>()
+        public void AddPolicyGroupFrom<TInstaller>()
             where TInstaller : IPolicyGroupInstaller, new ()
         {
             var installer = Activator.CreateInstance<TInstaller>();
@@ -62,11 +58,9 @@ namespace Exceptional
             AddPolicyGroup(installer.Provide());
         }
 
-        public static IExceptionManager LockAndCreateManager()
-        {
-            isLockedAgainstChanges = true;
-            return new ExceptionManager(policyGroupDictionary, rule, strategy);
-        }
+        internal IUnconfiguredExceptionRule Rule => this.rule;
+        internal IPolicyMatchingStrategy Strategy => this.strategy;
+        internal IEnumerable<ExceptionPolicyGroupBase> Policies => this.PolicyGroupDictionary.Values;
     }
 
     public class ExceptionManager : IExceptionManager
@@ -79,6 +73,12 @@ namespace Exceptional
         private readonly IReadOnlyDictionary<Type, ExceptionPolicyGroupBase> policyGroupDictionary;
         [NotNull]
         private readonly IExceptionalResolver resolver = new DefaultResolver();
+
+        public ExceptionManager(ExceptionManagerConfiguration configuration) : 
+            this(configuration.Policies, configuration.Rule, configuration.Strategy)
+        {
+            
+        }
 
         public ExceptionManager(IEnumerable<ExceptionPolicyGroupBase> policyGroupDictionary, IUnconfiguredExceptionRule defaultRule = null, IPolicyMatchingStrategy strategy = null)
         {

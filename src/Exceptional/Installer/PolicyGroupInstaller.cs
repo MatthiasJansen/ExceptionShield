@@ -11,10 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Exceptional.Handlers;
 using Exceptional.Installer.Builder;
 using Exceptional.Policies;
-using JetBrains.Annotations;
 
 #endregion
 
