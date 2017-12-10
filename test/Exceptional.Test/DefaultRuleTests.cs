@@ -10,6 +10,7 @@
 using System;
 using Exceptional.Installer.Builder;
 using Exceptional.Rules;
+using Moq;
 using NUnit.Framework;
 using static Exceptional.Test.ExceptionManagerTests;
 
@@ -23,26 +24,23 @@ namespace Exceptional.Test
         [Test]
         public void HonorsDefaultRuleOverrideWhenNoPolicyDefined()
         {
-            //var defaultRule = MockRepository.GenerateMock<IUnconfiguredExceptionRule>();
-            //defaultRule.Expect(r => r.Apply(Arg<Exception>.Is.Anything))
-            //    .Repeat.Once()
-            //    .Return(new PolicyMissingException());
+            var defaultRuleMock = new Mock<IUnconfiguredExceptionRule>();
+            defaultRuleMock
+                .Setup(_ => _.Apply(It.IsAny<Exception>()))
+                .Throws<PolicyMissingException>()
+                ;
 
-            //var handlerT01 = new TestExceptionHandler<DummyException>();
+            var policyGroup = PolicyGroupBuilder
+                .Create<DummyException, DummyException>
+                (
+                    d => d.StartAndComplete(c => c.Set<TestExceptionHandler<DummyException>>())
+                );
 
-            //var policyGroup = PolicyGroupBuilder
-            //    .Create<DummyException, DummyException>
-            //    (d => d.StartAndComplete<DummyException, TestExceptionHandler<DummyException>>()
-            //    );
+            var manager = new ExceptionManager(new []{policyGroup}, defaultRuleMock.Object);
 
-            //ExceptionManagerConfiguration.SetUnconfiguredExceptionRule(defaultRule);
+            Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<PolicyMissingException>());
 
-            //ExceptionManagerConfiguration.AddPolicyGroup(policyGroup);
-            //var manager = ExceptionManagerConfiguration.LockAndCreateManager();
-            
-            //Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<PolicyMissingException>());
-
-            //defaultRule.AssertWasCalled(r => r.Apply(Arg<Exception>.Is.Anything));
+            defaultRuleMock.Verify();
         }
     }
 }

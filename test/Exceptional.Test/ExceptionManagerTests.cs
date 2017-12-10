@@ -39,6 +39,7 @@ namespace Exceptional.Test
                 return src;
             }
         }
+
         internal class TestExceptionHandlerB<TSrc> : ExceptionHandler<TSrc, DummyException>
             where TSrc : Exception
         {
@@ -67,42 +68,46 @@ namespace Exceptional.Test
         {
             var policy1 = PolicyGroupBuilder
                 .Create<OutOfMemoryException, Exception>
-                (d => d
-                     .StartAndComplete<Exception,
-                         ExceptionHandler<OutOfMemoryException, Exception>>()
+                (d => d.StartAndComplete
+                     (c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>())
                 );
 
             var policy2 = PolicyGroupBuilder
-                .Create<OutOfMemoryException, Exception>(d => d
-                                                                        .StartAndComplete<Exception,
-                                                                            ExceptionHandler<
-                                                                                OutOfMemoryException,
-                                                                                Exception>
-                                                                        >());
+                .Create<OutOfMemoryException, Exception>
+                (d => d.StartAndComplete
+                     (c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>()));
 
-            
 
-            Assert.Throws<ExceptionManagerConfigurationException>(() => new ExceptionManager(new[] { policy1, policy2 }));
+            Assert.Throws<ExceptionManagerConfigurationException>(() => new ExceptionManager(new[]
+                                                                                             {
+                                                                                                 policy1,
+                                                                                                 policy2
+                                                                                             }));
         }
 
-        [Test][Description("Creates two policies which both handle the same exception type.")]
+        [Test]
+        [Description("Creates two policies which both handle the same exception type.")]
         public void FailureBehaviour02()
         {
             var policy1 = PolicyGroupBuilder
                 .Create<OutOfMemoryException, Exception>
                 (d => d
-                     .StartAndComplete<Exception,
-                         ExceptionHandler<OutOfMemoryException, Exception>>()
+                     .StartAndComplete(c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>())
                 );
 
             var policy2 = PolicyGroupBuilder
                 .Create<OutOfMemoryException, NullReferenceException>
                 (d => d
-                     .StartAndComplete<NullReferenceException,
-                         ExceptionHandler<OutOfMemoryException, NullReferenceException>>()
+                     .StartAndComplete(c => c.Set<ExceptionHandler<OutOfMemoryException, NullReferenceException>>())
                 );
 
-            Assert.Throws<ExceptionManagerConfigurationException>(() => new ExceptionManager(new ExceptionPolicyGroupBase[] { policy1, policy2 }));
+            Assert.Throws<ExceptionManagerConfigurationException>(() =>
+                                                                      new ExceptionManager(new ExceptionPolicyGroupBase
+                                                                                               []
+                                                                                               {
+                                                                                                   policy1,
+                                                                                                   policy2
+                                                                                               }));
         }
 
         [Test]
@@ -129,8 +134,7 @@ namespace Exceptional.Test
             var policy1 = PolicyGroupBuilder
                 .Create<OutOfMemoryException, Exception>
                 (d => d
-                     .StartAndComplete<Exception,
-                         ExceptionHandler<OutOfMemoryException, Exception>>()
+                     .StartAndComplete(c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>())
                 );
 
             Assert.IsNotNull(policy1);
@@ -148,8 +152,10 @@ namespace Exceptional.Test
         {
             var policy2 = PolicyGroupBuilder
                 .Create<OutOfMemoryException, Exception>
-                (d => d.Start<ArgumentException, ExceptionHandler<OutOfMemoryException, ArgumentException>>()
-                       .ThenComplete<ExceptionHandler<ArgumentException, Exception>>()
+                (
+                 d => d
+                     .Start<ArgumentException>(c => c.Set<ExceptionHandler<OutOfMemoryException, ArgumentException>>())
+                     .ThenComplete(c => c.Set<ExceptionHandler<ArgumentException, Exception>>())
                 );
 
             Assert.IsNotNull(policy2);
@@ -166,9 +172,11 @@ namespace Exceptional.Test
         {
             var policy3 = PolicyGroupBuilder
                 .Create<OutOfMemoryException, Exception>
-                (d => d.Start<ArgumentException, ExceptionHandler<OutOfMemoryException, ArgumentException>>()
-                       .Then<MissingFieldException, ExceptionHandler<ArgumentException, MissingFieldException>>()
-                       .ThenComplete<ExceptionHandler<MissingFieldException, Exception>>()
+                (d => d
+                     .Start<ArgumentException>(c => c.Set<ExceptionHandler<OutOfMemoryException, ArgumentException>>())
+                     .Then<MissingFieldException
+                     >(c => c.Set<ExceptionHandler<ArgumentException, MissingFieldException>>())
+                     .ThenComplete(c => c.Set<ExceptionHandler<MissingFieldException, Exception>>())
                 );
 
             Assert.IsNotNull(policy3);
@@ -186,7 +194,7 @@ namespace Exceptional.Test
         {
             var policy1 = PolicyGroupBuilder
                 .Create<DummyException, DummyException>
-                (d => d.StartAndComplete<DummyException, TestExceptionHandler<DummyException>>());
+                (d => d.StartAndComplete(c => c.Set<TestExceptionHandler<DummyException>>()));
 
             Assert.IsNotNull(policy1);
             var manager = new ExceptionManager(new[]
@@ -204,9 +212,9 @@ namespace Exceptional.Test
             var policy2 = PolicyGroupBuilder
                 .Create<AggregateException, DummyException>
                 (
-                 bd => bd.StartAndComplete<DummyException, TestExceptionHandlerB<AggregateException>>(),
+                 bd => bd.StartAndComplete(c => c.Set<TestExceptionHandlerB<AggregateException>>()),
                  b1 => b1.SetContext("marten")
-                         .StartAndComplete<DummyException, TestExceptionHandlerB<AggregateException>>()
+                         .StartAndComplete(c => c.Set<TestExceptionHandlerB<AggregateException>>())
                 );
 
             var exception = new AggregateException("Greetings from outer exception",
@@ -216,9 +224,12 @@ namespace Exceptional.Test
 
             Assert.IsNotNull(policy2);
             var manager = new ExceptionManager
-                ( new[]{ policy2 }
-                , new PolicyMissingDefaultRule()
-                , new DefaultPolicyMatchingStrategy());
+                (new[]
+                 {
+                     policy2
+                 }
+                 , new PolicyMissingDefaultRule()
+                 , new DefaultPolicyMatchingStrategy());
 
             Assert.That(() => manager.Handle(exception), Throws.TypeOf<DummyException>());
         }

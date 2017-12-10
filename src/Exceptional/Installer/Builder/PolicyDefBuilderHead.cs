@@ -9,7 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using Exceptional.Handlers;
 using Exceptional.Policies;
 using Exceptional.Terminators;
 
@@ -28,23 +27,35 @@ namespace Exceptional.Installer.Builder
             this.context = context;
         }
 
-        public PolicyDefBuilderPart<TSrc, TSrc, TNxt, TEnd> Start<TNxt, THnd>()
+        //(Action<HandlerSpecifier<TCur, TEnd>> action)
+        //{
+        //    var handlerSpecifier = new HandlerSpecifier<TCur, TEnd>();
+        //    action(handlerSpecifier);
+
+        //    this.handlers.Add(typeof(TCur), handlerSpecifier.HandlerType);
+
+        public PolicyDefBuilderPart<TSrc, TNxt, TEnd> Start<TNxt>(Action<HandlerSpecifier<TSrc, TNxt>> action)
             where TNxt : Exception
-            where THnd : ExceptionHandler<TSrc, TNxt>
         {
-            return new PolicyDefBuilderPart<TSrc, TSrc, TNxt, TEnd>
-                (this.context,
-                 new Dictionary<Type, Type>(), typeof(THnd));
+            var handlers = new Dictionary<Type, Type>();
+
+            var handlerSpecifier = new HandlerSpecifier<TSrc, TNxt>();
+                action(handlerSpecifier);
+
+            handlers.Add(typeof(TSrc), handlerSpecifier.HandlerType);
+
+            return new PolicyDefBuilderPart<TSrc, TNxt, TEnd>
+                (this.context, handlers);
         }
 
-        public CompletePolicyDefinition<TSrc, TEnd> StartAndComplete<TNxt, THnd>()
-            where TNxt : Exception
-            where THnd : ExceptionHandler<TSrc, TNxt>
+        public CompletePolicyDefinition<TSrc, TEnd> StartAndComplete(Action<HandlerSpecifier<TSrc, TEnd>> action)
         {
-            var handlers = new Dictionary<Type, Type>
-                           {
-                               {typeof(TSrc), typeof(THnd)}
-                           };
+            var handlers = new Dictionary<Type, Type>();
+
+            var handlerSpecifier = new HandlerSpecifier<TSrc, TEnd>();
+            action(handlerSpecifier);
+
+            handlers.Add(typeof(TSrc), handlerSpecifier.HandlerType);
 
             var policy = new ExceptionPolicy<TSrc, TEnd>(handlers);
 

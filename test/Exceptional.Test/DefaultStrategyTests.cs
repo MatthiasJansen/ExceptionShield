@@ -41,12 +41,12 @@ namespace Exceptional.Test
             {
                 get
                 {
-                    var g1Cn = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete<Exception, ExceptionHandler<L1Ex, Exception>>());
-                    var g2Cn = PolicyGroupBuilder.Create<L2Ex, Exception>(d => d.StartAndComplete<Exception, ExceptionHandler<L2Ex, Exception>>());
-                    var g3Cn = PolicyGroupBuilder.Create<L3Ex, Exception>(d => d.StartAndComplete<Exception, ExceptionHandler<L3Ex, Exception>>());
+                    var g1Cn = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()));
+                    var g2Cn = PolicyGroupBuilder.Create<L2Ex, Exception>(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L2Ex, Exception>>()));
+                    var g3Cn = PolicyGroupBuilder.Create<L3Ex, Exception>(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L3Ex, Exception>>()));
 
-                    var g1Cs = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete<Exception, ExceptionHandler<L1Ex, Exception>>(),
-                        s => s.SetContext("special").StartAndComplete<Exception, ExceptionHandler<L1Ex, Exception>>());
+                    var g1Cs = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()),
+                        s => s.SetContext("special").StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()));
 
                     yield return new TestCaseData(
                         typeof(L3Ex),
