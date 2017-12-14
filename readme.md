@@ -1,13 +1,13 @@
-# Exceptional
+# ExceptionShield
 
-Exceptional is a exception manager, with the simple goal of making exception management exceptionally simple.
+ExceptionShield is a exception manager, with the simple goal of making exception management exceptionally simple.
 
 ## Builds & CI
 
 | Branch      | Status           |
 |:-----------:|:----------------:|
-| master      | [![Build Status](https://travis-ci.org/MatthiasJansen/Exceptional.svg?branch=master)](https://travis-ci.org/MatthiasJansen/Exceptional) |
-| release 0.8 | [![Build Status](https://travis-ci.org/MatthiasJansen/Exceptional.svg?branch=release%2F0.8)](https://travis-ci.org/MatthiasJansen/Exceptional) |
+| master      | [![Build Status](https://travis-ci.org/MatthiasJansen/ExceptionShield.svg?branch=master)](https://travis-ci.org/MatthiasJansen/Exceptional) |
+| release 0.8 | [![Build Status](https://travis-ci.org/MatthiasJansen/ExceptionShield.svg?branch=release%2F0.8)](https://travis-ci.org/MatthiasJansen/Exceptional) |
 
 ## Responsibilities
 ## Particularities
