@@ -9,10 +9,10 @@
     <AssemblyOriginatorKeyFile>Exceptional.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <PackageLicenseUrl>https://github.com/MatthiasJansen/Exceptional/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/MatthiasJansen/Exceptional</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/MatthiasJansen/Exceptional</RepositoryUrl>
-    <PackageTags>manager handler exception</PackageTags>
+    <PackageLicenseUrl>https://github.com/MatthiasJansen/ExceptionShield/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/MatthiasJansen/ExceptionShield</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/MatthiasJansen/ExceptionShield</RepositoryUrl>
+    <PackageTags>manager handler exception policy shield exceptional</PackageTags>
     
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
