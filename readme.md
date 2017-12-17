@@ -6,8 +6,7 @@ ExceptionShield is a exception manager, with the simple goal of making exception
 
 | Branch      | Status           |
 |:-----------:|:----------------:|
-| master      | [![Build Status](https://travis-ci.org/MatthiasJansen/ExceptionShield.svg?branch=master)](https://travis-ci.org/MatthiasJansen/Exceptional) |
-| release 0.8 | [![Build Status](https://travis-ci.org/MatthiasJansen/ExceptionShield.svg?branch=release%2F0.8)](https://travis-ci.org/MatthiasJansen/Exceptional) |
+| master      | ![Build Status](https://matthias-jansen.visualstudio.com/_apis/public/build/definitions/b510d81b-9eed-4f52-be90-b5b864a4aa98/4/badge) |
 
 ## Responsibilities
 ## Particularities

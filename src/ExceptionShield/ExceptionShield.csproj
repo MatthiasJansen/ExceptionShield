@@ -8,17 +8,18 @@
     <SignAssembly>False</SignAssembly>
     <AssemblyOriginatorKeyFile>Exceptional.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://github.com/MatthiasJansen/ExceptionShield/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/MatthiasJansen/ExceptionShield</PackageProjectUrl>
     <RepositoryUrl>https://github.com/MatthiasJansen/ExceptionShield</RepositoryUrl>
     <PackageTags>manager handler exception policy shield exceptional</PackageTags>
     <DebugType>Full</DebugType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
