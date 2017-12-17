@@ -13,7 +13,7 @@
     <PackageProjectUrl>https://github.com/MatthiasJansen/ExceptionShield</PackageProjectUrl>
     <RepositoryUrl>https://github.com/MatthiasJansen/ExceptionShield</RepositoryUrl>
     <PackageTags>manager handler exception policy shield exceptional</PackageTags>
-    
+    <DebugType>Full</DebugType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
