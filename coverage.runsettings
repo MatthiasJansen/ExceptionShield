@@ -9,7 +9,7 @@
             <!-- Match assembly file paths: -->  
             <ModulePaths>  
               <Include>  
-                <ModulePath>ExceptionShield.*\.dll$</ModulePath>  
+                <ModulePath>.*\\ExceptionShield.*\.dll$</ModulePath>  
               </Include>  
             </ModulePaths>  
   
