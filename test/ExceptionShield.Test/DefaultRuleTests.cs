@@ -12,15 +12,16 @@
 using System;
 using ExceptionShield.Installer.Builder;
 using ExceptionShield.Rules;
+using FluentAssertions;
 using Moq;
-using NUnit.Framework;
+using Xunit;
 
 namespace ExceptionShield.Test
 {
-    [TestFixture]
+    
     public class DefaultRuleTests
     {
-        [Test]
+        [Fact]
         public void HonorsDefaultRuleOverrideWhenNoPolicyDefined()
         {
             var defaultRuleMock = new Mock<IUnconfiguredExceptionRule>();
@@ -37,7 +38,8 @@ namespace ExceptionShield.Test
 
             var manager = new ExceptionManager(new []{policyGroup}, defaultRuleMock.Object);
 
-            Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<PolicyMissingException>());
+            manager.Invoking(m => m.Handle(new OutOfMemoryException()))
+                .ShouldThrowExactly<PolicyMissingException>();
 
             defaultRuleMock.Verify();
         }

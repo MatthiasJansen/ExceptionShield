@@ -11,20 +11,21 @@
 
 using System;
 using ExceptionShield.Policies;
-using NUnit.Framework;
+using FluentAssertions;
+using Xunit;
 
 namespace ExceptionShield.Test
 {
-    [TestFixture]
+    
     public class ExceptionPolicyTests
     {
-        [Test]
+        [Fact]
         public void Assert_ThatCorrectTypeGuidsAreAvailable()
         {
             var policy = new ExceptionPolicy<TimeoutException, NotSupportedException>(null);
 
-            Assert.That(policy.Handles, Is.EqualTo(typeof(TimeoutException)));
-            Assert.That(policy.Returns, Is.EqualTo(typeof(NotSupportedException)));
+            policy.Handles.Should().Be(typeof(TimeoutException));
+            policy.Returns.Should().Be(typeof(NotSupportedException));
         }
     }
 }

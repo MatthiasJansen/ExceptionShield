@@ -13,34 +13,35 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using ExceptionShield.Policies;
-using NUnit.Framework;
+using FluentAssertions;
+using Xunit;
 
 namespace ExceptionShield.Test
 {
-    [TestFixture]
+    
     public class ExceptionPolicyGroupTests
     {
-        [Test]
+        [Fact]
         public void Handles_ShouldBeTheTypeOfTheDstException()
         {
             var epg = new ExceptionPolicyGroup<ArgumentNullException, ArgumentOutOfRangeException>(
                 new ReadOnlyDictionary<string, ExceptionPolicy<ArgumentNullException, ArgumentOutOfRangeException>>(
                     new Dictionary<string, ExceptionPolicy<ArgumentNullException, ArgumentOutOfRangeException>>()));
 
-            Assert.That(() => epg.Returns, Is.EqualTo(typeof(ArgumentOutOfRangeException)));
+            epg.Returns.Should().Be(typeof(ArgumentOutOfRangeException));
         }
 
-        [Test]
+        [Fact]
         public void Handles_ShouldBeTheTypeOfTheSrcException()
         {
             var epg = new ExceptionPolicyGroup<ArgumentNullException, ArgumentOutOfRangeException>(
                 new ReadOnlyDictionary<string, ExceptionPolicy<ArgumentNullException, ArgumentOutOfRangeException>>(
                     new Dictionary<string, ExceptionPolicy<ArgumentNullException, ArgumentOutOfRangeException>>()));
 
-            Assert.That(() => epg.Handles, Is.EqualTo(typeof(ArgumentNullException)));
+            epg.Handles.Should().Be(typeof(ArgumentNullException));
         }
 
-        [Test]
+        [Fact]
         public void PolicyByContextOrDefault_DoesNotThrow_WhenContextIsNull()
         {
             var epg = new ExceptionPolicyGroup<ArgumentNullException, ArgumentOutOfRangeException>(

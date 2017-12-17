@@ -11,11 +11,12 @@
 
 using System;
 using ExceptionShield.Terminators;
-using NUnit.Framework;
+using FluentAssertions;
+using Xunit;
 
 namespace ExceptionShield.Test
 {
-    [TestFixture]
+    
     public class DummyTerminatorBaseTests
     {
         internal class SpecializedDummyTerminator : TerminatorBase<Exception>
@@ -26,13 +27,13 @@ namespace ExceptionShield.Test
             }
         }
 
-        [Test]
+        [Fact]
         public void Terminate_ShouldNeverThrow()
         {
             var terminator = new SpecializedDummyTerminator();
 
-            Assert.That(() => terminator.Terminate(new Exception()), Throws.Nothing);
-            Assert.That(() => terminator.Terminate(null), Throws.Nothing);
+            terminator.Invoking(t => t.Terminate(new Exception())).ShouldNotThrow();
+            terminator.Invoking(t => t.Terminate(null)).ShouldNotThrow();
         }
     }
 }

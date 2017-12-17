@@ -12,11 +12,12 @@
 using System;
 using ExceptionShield.Installer;
 using ExceptionShield.Installer.Builder;
-using NUnit.Framework;
+using FluentAssertions;
+using Xunit;
 
 namespace ExceptionShield.Test
 {
-    [TestFixture]
+    
     public class PolicyGroupInstallerTests
     {
         internal class Handler1 : Handlers.ExceptionHandler<OutOfMemoryException, AccessViolationException>
@@ -51,14 +52,15 @@ namespace ExceptionShield.Test
             }
         }
 
-        [Test]
+        [Fact]
         public void T1()
         {
             var policyGroup = new DummyPolicyGroupInstaller().Provide();
 
             var manager = new ExceptionManager(new []{policyGroup});
 
-            manager.Handle(new OutOfMemoryException());
+            manager.Invoking(_ => _.Handle(new OutOfMemoryException()))
+                   .ShouldThrowExactly<AppDomainUnloadedException>();
         }
     }
 }

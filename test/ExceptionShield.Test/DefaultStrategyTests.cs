@@ -10,17 +10,16 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using ExceptionShield.Handlers;
 using ExceptionShield.Installer.Builder;
 using ExceptionShield.Policies;
 using ExceptionShield.Strategies;
-using NUnit.Framework;
+using FluentAssertions;
+using Xunit;
 
 namespace ExceptionShield.Test
 {
-    [TestFixture]
     public class DefaultStrategyTests
     {
         public class L3Ex : L2Ex
@@ -35,68 +34,105 @@ namespace ExceptionShield.Test
         {
         }
 
-        public class MyFactoryClass
+
+        public static IEnumerable<object[]> TestCases
         {
-            public static IEnumerable TestCases
+            get
             {
-                get
-                {
-                    var g1Cn = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()));
-                    var g2Cn = PolicyGroupBuilder.Create<L2Ex, Exception>(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L2Ex, Exception>>()));
-                    var g3Cn = PolicyGroupBuilder.Create<L3Ex, Exception>(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L3Ex, Exception>>()));
+                var g1Cn =
+                    PolicyGroupBuilder.Create<L1Ex, Exception>(d =>
+                                                                   d.StartAndComplete(c => c
+                                                                                          .Set<ExceptionHandler<L1Ex
+                                                                                              , Exception>>()));
+                var g2Cn =
+                    PolicyGroupBuilder.Create<L2Ex, Exception>(d =>
+                                                                   d.StartAndComplete(c => c
+                                                                                          .Set<ExceptionHandler<L2Ex
+                                                                                              , Exception>>()));
+                var g3Cn =
+                    PolicyGroupBuilder.Create<L3Ex, Exception>(d =>
+                                                                   d.StartAndComplete(c => c
+                                                                                          .Set<ExceptionHandler<L3Ex
+                                                                                              , Exception>>()));
 
-                    var g1Cs = PolicyGroupBuilder.Create<L1Ex, Exception>(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()),
-                        s => s.SetContext("special").StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()));
+                var g1Cs =
+                    PolicyGroupBuilder
+                        .Create<L1Ex, Exception
+                        >(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()),
+                          s => s.SetContext("special")
+                                .StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()));
 
-                    yield return new TestCaseData(
-                        typeof(L3Ex),
-                        new Dictionary<Type, ExceptionPolicyGroupBase> {{g1Cn.Handles, g1Cn}},
-                        Context.Default,
-                        typeof(L1Ex)
-                    );
-                    yield return new TestCaseData(
-                        typeof(L3Ex),
-                        new Dictionary<Type, ExceptionPolicyGroupBase> {{g1Cn.Handles, g1Cn}},
-                        "special",
-                        typeof(L1Ex)
-                    );
-                    yield return new TestCaseData(
-                        typeof(L3Ex),
-                        new Dictionary<Type, ExceptionPolicyGroupBase> {{g1Cs.Handles, g1Cs}},
-                        "special",
-                        typeof(L1Ex)
-                    );
-                    yield return new TestCaseData(
-                        typeof(L3Ex),
-                        new Dictionary<Type, ExceptionPolicyGroupBase> {{g1Cn.Handles, g1Cn}, {g2Cn.Handles, g2Cn}},
-                        Context.Default,
-                        typeof(L2Ex)
-                    );
-                    yield return new TestCaseData(
-                        typeof(L3Ex),
-                        new Dictionary<Type, ExceptionPolicyGroupBase>
-                        {
-                            {g1Cn.Handles, g1Cn},
-                            {g2Cn.Handles, g2Cn},
-                            {g3Cn.Handles, g3Cn}
-                        },
-                        Context.Default,
-                        typeof(L3Ex)
-                    );
-                }
+                yield return new object[]
+                             {
+                                 typeof(L3Ex),
+                                 new Dictionary<Type, ExceptionPolicyGroupBase>
+                                 {
+                                     {g1Cn.Handles, g1Cn}
+                                 },
+                                 Context.Default,
+                                 typeof(L1Ex)
+                             };
+                yield return new object[]
+                             {
+                                 typeof(L3Ex),
+                                 new Dictionary<Type, ExceptionPolicyGroupBase>
+                                 {
+                                     {g1Cn.Handles, g1Cn}
+                                 },
+                                 "special",
+                                 typeof(L1Ex)
+                             };
+                yield return new object[]
+                             {
+                                 typeof(L3Ex),
+
+                                 new Dictionary<Type, ExceptionPolicyGroupBase>
+                                 {
+                                     {
+                                         g1Cs.Handles, g1Cs
+                                     }
+                                 },
+                                 "special",
+                                 typeof(L1Ex)
+                             };
+
+                yield return new object[]
+                             {
+                                 typeof(L3Ex),
+                                 new Dictionary<Type, ExceptionPolicyGroupBase>
+                                 {
+                                     {g1Cn.Handles, g1Cn},
+                                     {g2Cn.Handles, g2Cn}
+                                 },
+                                 Context.Default,
+                                 typeof(L2Ex)
+                             };
+                yield return new object[]
+                             {
+                                 typeof(L3Ex),
+                                 new Dictionary<Type, ExceptionPolicyGroupBase>
+                                 {
+                                     {g1Cn.Handles, g1Cn},
+                                     {g2Cn.Handles, g2Cn},
+                                     {g3Cn.Handles, g3Cn}
+                                 },
+                                 Context.Default,
+                                 typeof(L3Ex)
+                             };
             }
         }
 
-        [Test]
-        [TestCaseSource(typeof(MyFactoryClass), nameof(MyFactoryClass.TestCases))]
+
+        [Theory]
+        [MemberData(nameof(TestCases))]
         public void T1(Type requested, Dictionary<Type, ExceptionPolicyGroupBase> policyGroups, string context,
-            Type expected)
+                       Type expected)
         {
             var strategy = new DefaultPolicyMatchingStrategy();
 
             var result = strategy.MatchPolicy(policyGroups, requested, Context.Default);
 
-            Assert.That(result.Handles, Is.EqualTo(expected));
+            result.Handles.Should().Be(expected);
         }
     }
 }

@@ -17,11 +17,12 @@ using ExceptionShield.Installer.Builder;
 using ExceptionShield.Policies;
 using ExceptionShield.Rules;
 using ExceptionShield.Strategies;
-using NUnit.Framework;
+using FluentAssertions;
+using Xunit;
 
 namespace ExceptionShield.Test
 {
-    [TestFixture]
+    
     public class ExceptionManagerTests
     {
         internal class TestExceptionHandler<TSrc> : ExceptionHandler<TSrc, TSrc>
@@ -61,8 +62,8 @@ namespace ExceptionShield.Test
             }
         }
 
-        [Test]
-        [Description("Creates two policies which both handle the same exception type.")]
+        [Fact]
+        //[Description("Creates two policies which both handle the same exception type.")]
         public void FailureBehaviour01()
         {
             var policy1 = PolicyGroupBuilder
@@ -84,8 +85,8 @@ namespace ExceptionShield.Test
                                                                                              }));
         }
 
-        [Test]
-        [Description("Creates two policies which both handle the same exception type.")]
+        [Fact]
+        //[Description("Creates two policies which both handle the same exception type.")]
         public void FailureBehaviour02()
         {
             var policy1 = PolicyGroupBuilder
@@ -109,25 +110,27 @@ namespace ExceptionShield.Test
                                                                                                }));
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowPolicyMissingException1()
         {
             var manager = new ExceptionManager(Enumerable.Empty<ExceptionPolicyGroupBase>());
-            Assert.That(() => manager.Handle(new OutOfMemoryException(), string.Empty),
-                        Throws.TypeOf<PolicyMissingException>());
+            manager.Invoking(m => m.Handle(new OutOfMemoryException(), string.Empty))
+                   .ShouldThrowExactly<PolicyMissingException>();
         }
+    
 
-        [Test]
+        [Fact]
         public void ShouldThrowPolicyMissingException2()
         {
             var manager = new ExceptionManager(Enumerable.Empty<ExceptionPolicyGroupBase>());
-            Assert.That(() => manager.Handle(new OutOfMemoryException(), null),
-                        Throws.TypeOf<PolicyMissingException>());
+
+            manager.Invoking(m => m.Handle(new OutOfMemoryException(), null))
+                   .ShouldThrowExactly<PolicyMissingException>();
         }
 
 
-        [Test]
-        [Description(@"Tests the building a simple policy with a single conversion step.")]
+        [Fact]
+        //[Description(@"Tests the building a simple policy with a single conversion step.")]
         public void T1()
         {
             var policy1 = PolicyGroupBuilder
@@ -136,17 +139,18 @@ namespace ExceptionShield.Test
                      .StartAndComplete(c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>())
                 );
 
-            Assert.IsNotNull(policy1);
+            policy1.Should().NotBeNull();
             var manager = new ExceptionManager(new[]
                                                {
                                                    policy1
                                                });
 
 
-            Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<Exception>());
+            manager.Invoking(m => m.Handle(new OutOfMemoryException()))
+                .ShouldThrowExactly<Exception>();
         }
 
-        [Test]
+        [Fact]
         public void T2()
         {
             var policy2 = PolicyGroupBuilder
@@ -157,16 +161,17 @@ namespace ExceptionShield.Test
                      .ThenComplete(c => c.Set<ExceptionHandler<ArgumentException, Exception>>())
                 );
 
-            Assert.IsNotNull(policy2);
+            policy2.Should().NotBeNull();
             var manager = new ExceptionManager(new[]
                                                {
                                                    policy2
                                                });
 
-            Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<Exception>());
+            manager.Invoking(m => m.Handle(new OutOfMemoryException()))
+                .ShouldThrowExactly<Exception>();
         }
 
-        [Test]
+        [Fact]
         public void T3()
         {
             var policy3 = PolicyGroupBuilder
@@ -178,34 +183,36 @@ namespace ExceptionShield.Test
                      .ThenComplete(c => c.Set<ExceptionHandler<MissingFieldException, Exception>>())
                 );
 
-            Assert.IsNotNull(policy3);
+            policy3.Should().NotBeNull();
             var manager = new ExceptionManager(new[]
                                                {
                                                    policy3
                                                }, new PolicyMissingDefaultRule(),
                                                new DefaultPolicyMatchingStrategy());
 
-            Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<Exception>());
+            manager.Invoking(m => m.Handle(new OutOfMemoryException()))
+                .ShouldThrowExactly<Exception>();
         }
 
-        [Test]
+        [Fact]
         public void ThrowsExceptionWhenNoTerminatorDefined()
         {
             var policy1 = PolicyGroupBuilder
                 .Create<DummyException, DummyException>
                 (d => d.StartAndComplete(c => c.Set<TestExceptionHandler<DummyException>>()));
 
-            Assert.IsNotNull(policy1);
+            policy1.Should().NotBeNull();
             var manager = new ExceptionManager(new[]
                                                {
                                                    policy1
                                                }, new PolicyMissingDefaultRule(),
                                                new DefaultPolicyMatchingStrategy());
 
-            Assert.That(() => manager.Handle(new OutOfMemoryException()), Throws.TypeOf<PolicyMissingException>());
+            manager.Invoking(m => m.Handle(new OutOfMemoryException()))
+                .ShouldThrowExactly<PolicyMissingException>();
         }
 
-        [Test]
+        [Fact]
         public void UnWrappRuleTest01()
         {
             var policy2 = PolicyGroupBuilder
@@ -221,7 +228,7 @@ namespace ExceptionShield.Test
                                                        .Repeat(new DummyException("Greetings from inner Exception."),
                                                                1));
 
-            Assert.IsNotNull(policy2);
+            policy2.Should().NotBeNull();
             var manager = new ExceptionManager
                 (new[]
                  {
@@ -230,7 +237,8 @@ namespace ExceptionShield.Test
                  , new PolicyMissingDefaultRule()
                  , new DefaultPolicyMatchingStrategy());
 
-            Assert.That(() => manager.Handle(exception), Throws.TypeOf<DummyException>());
+            manager.Invoking(m => m.Handle(exception))
+                .ShouldThrowExactly<DummyException>();
         }
     }
 }
