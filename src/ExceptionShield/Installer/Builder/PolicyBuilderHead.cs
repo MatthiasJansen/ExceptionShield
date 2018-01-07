@@ -15,13 +15,13 @@ using ExceptionShield.Policies;
 
 namespace ExceptionShield.Installer.Builder
 {
-    public class PolicyDefBuilderHead<TSrc, TEnd>
+    public class PolicyBuilderHead<TSrc, TEnd>
         where TSrc : Exception
         where TEnd : Exception
     {
         private readonly string context;
 
-        public PolicyDefBuilderHead(string context)
+        public PolicyBuilderHead(string context)
         {
             this.context = context;
         }
@@ -33,7 +33,7 @@ namespace ExceptionShield.Installer.Builder
 
         //    this.handlers.Add(typeof(TCur), handlerSpecifier.HandlerType);
 
-        public PolicyDefBuilderPart<TSrc, TNxt, TEnd> Start<TNxt>(Action<HandlerSpecifier<TSrc, TNxt>> action)
+        public PolicyBuilderPart<TSrc, TNxt, TEnd> Start<TNxt>(Action<HandlerSpecifier<TSrc, TNxt>> action)
             where TNxt : Exception
         {
             var handlers = new Dictionary<Type, Type>();
@@ -43,11 +43,11 @@ namespace ExceptionShield.Installer.Builder
 
             handlers.Add(typeof(TSrc), handlerSpecifier.HandlerType);
 
-            return new PolicyDefBuilderPart<TSrc, TNxt, TEnd>
+            return new PolicyBuilderPart<TSrc, TNxt, TEnd>
                 (this.context, handlers);
         }
 
-        public CompletePolicyDefinition<TSrc, TEnd> StartAndComplete(Action<HandlerSpecifier<TSrc, TEnd>> action)
+        public PolicyBuilderTail<TSrc, TEnd> StartAndComplete(Action<HandlerSpecifier<TSrc, TEnd>> action)
         {
             var handlers = new Dictionary<Type, Type>();
 
@@ -56,9 +56,7 @@ namespace ExceptionShield.Installer.Builder
 
             handlers.Add(typeof(TSrc), handlerSpecifier.HandlerType);
 
-            var policy = new ExceptionPolicy<TSrc, TEnd>(handlers);
-
-            return new CompletePolicyDefinition<TSrc, TEnd>(this.context, policy);
+            return new PolicyBuilderTail<TSrc, TEnd>(this.context, handlers);
         }
     }
 }

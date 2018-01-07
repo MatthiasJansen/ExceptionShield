@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using ExceptionShield.Installer.Builder;
 using ExceptionShield.Policies;
+using ExceptionShield.Terminators;
 
 #endregion
 
@@ -28,19 +29,23 @@ namespace ExceptionShield.Installer
     {
         public ExceptionPolicyGroupBase Provide()
         {
-            var hBuilder = new DefaultPolicyDefinitionBuilderHead<TSrc, TDst>();
-            var nBuilder = new PolicyDefinitionBuilder<TSrc, TDst>();
+            var hBuilder = new DefaultPolicyDefinitionBuilder<TSrc, TDst>();
+            var nBuilder = new RegularPolicyDefinitionBuilderProxy<TSrc, TDst>();
 
-            var defaultPolicy = Provide(hBuilder);
+            var defaultPolicyDefinition = Provide(hBuilder);
+
+            var defaultPolicy = defaultPolicyDefinition.CreatePolicy();
+
             var policyDict = new Dictionary<string, ExceptionPolicy<TSrc, TDst>>
             {
-                {defaultPolicy.Context, defaultPolicy.Policy}
+                {defaultPolicyDefinition.Context, defaultPolicy}
             };
 
-            var policies = Provide(nBuilder) ?? Enumerable.Empty<CompletePolicyDefinition<TSrc, TDst>>();
-            foreach (var policy in policies)
+            var regularPolicyDefinitions = Provide(nBuilder) ?? Enumerable.Empty<CompletePolicyDefinition<TSrc, TDst>>();
+            foreach (var regularPolicyDefinition in regularPolicyDefinitions)
             {
-                policyDict.Add(policy.Context, policy.Policy);
+                var regularPolicy = regularPolicyDefinition.CreatePolicy();
+                policyDict.Add(regularPolicyDefinition.Context, regularPolicy);
             }
 
             return
@@ -48,11 +53,11 @@ namespace ExceptionShield.Installer
                     new ReadOnlyDictionary<string, ExceptionPolicy<TSrc, TDst>>(policyDict));
         }
 
-        protected abstract CompletePolicyDefinition<TSrc, TDst> Provide(
-            DefaultPolicyDefinitionBuilderHead<TSrc, TDst> builder);
+        protected abstract CompletePolicyDefinition<TSrc, TDst> 
+            Provide(DefaultPolicyDefinitionBuilder<TSrc, TDst> builder);
 
-        protected virtual IEnumerable<CompletePolicyDefinition<TSrc, TDst>> Provide(
-            PolicyDefinitionBuilder<TSrc, TDst> builder)
+        protected virtual IEnumerable<CompletePolicyDefinition<TSrc, TDst>> 
+            Provide(RegularPolicyDefinitionBuilderProxy<TSrc, TDst> builderProxy)
         {
             yield break;
         }

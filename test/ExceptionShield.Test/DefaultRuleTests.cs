@@ -34,6 +34,7 @@ namespace ExceptionShield.Test
                 .Create<ExceptionManagerTests.DummyException, ExceptionManagerTests.DummyException>
                 (
                     d => d.StartAndComplete(c => c.Set<ExceptionManagerTests.TestExceptionHandler<ExceptionManagerTests.DummyException>>())
+                     .WithoutTerminator()
                 );
 
             var manager = new ExceptionManager(new []{policyGroup}, defaultRuleMock.Object);

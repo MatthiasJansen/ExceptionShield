@@ -29,7 +29,7 @@ namespace ExceptionShield.Terminators
             }
             catch (Exception)
             {
-
+                // ignored
             }
         }
 

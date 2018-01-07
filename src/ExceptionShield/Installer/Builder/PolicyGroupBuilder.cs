@@ -10,39 +10,51 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using ExceptionShield.Policies;
 
 #endregion
 
 namespace ExceptionShield.Installer.Builder
 {
+    public delegate CompletePolicyDefinition<TSrc, TEnd>
+        DefaultCreator<TSrc, TEnd>(DefaultPolicyDefinitionBuilder<TSrc, TEnd> builder)
+        where TSrc : Exception
+        where TEnd : Exception;
+
+    public delegate CompletePolicyDefinition<TSrc, TEnd>
+        RegularCreator<TSrc, TEnd>(RegularPolicyDefinitionBuilderProxy<TSrc, TEnd> builderProxy)
+        where TSrc : Exception
+        where TEnd : Exception;
+
     public class PolicyGroupBuilder
     {
-        public static ExceptionPolicyGroup<TSrc, TEnd> Create<TSrc, TEnd>(
-            Func<DefaultPolicyDefinitionBuilderHead<TSrc, TEnd>, CompletePolicyDefinition<TSrc, TEnd>>
-                defaultPolicyDefinitionCreator,
-            params Func<PolicyDefinitionBuilder<TSrc, TEnd>, CompletePolicyDefinition<TSrc, TEnd>>[]
-                policyDefinitionCreators)
+        public static ExceptionPolicyGroup<TSrc, TDst> Create<TSrc, TDst>(
+            DefaultCreator<TSrc, TDst> defaultCreator,
+            params RegularCreator<TSrc, TDst>[] regularCreators)
             where TSrc : Exception
-            where TEnd : Exception
+            where TDst : Exception
         {
-            var policyDict = new Dictionary<string, ExceptionPolicy<TSrc, TEnd>>();
+            var policyDict = new Dictionary<string, ExceptionPolicy<TSrc, TDst>>();
 
-            var dpdb = new DefaultPolicyDefinitionBuilderHead<TSrc, TEnd>();
-            var cdpd = defaultPolicyDefinitionCreator.Invoke(dpdb);
+            var defaultPolicyDefinitionBuilderHead = new DefaultPolicyDefinitionBuilder<TSrc, TDst>();
+            var defaultPolicyDefinition = defaultCreator.Invoke(defaultPolicyDefinitionBuilderHead);
 
-            policyDict.Add(cdpd.Context, cdpd.Policy);
+            var defaultPolicy = defaultPolicyDefinition.CreatePolicy();
 
-            foreach (var sdc in policyDefinitionCreators)
+            policyDict.Add(defaultPolicyDefinition.Context, defaultPolicy);
+
+            foreach (var regularCreator in regularCreators)
             {
-                var pdb = new PolicyDefinitionBuilder<TSrc, TEnd>();
-                var cpd = sdc.Invoke(pdb);
-                policyDict.Add(cpd.Context, cpd.Policy);
+                var pdb = new RegularPolicyDefinitionBuilderProxy<TSrc, TDst>();
+                var regularPolicyDefinition = regularCreator.Invoke(pdb);
+                var regularPolicy = regularPolicyDefinition.CreatePolicy();
+                policyDict.Add(regularPolicyDefinition.Context, regularPolicy);
             }
 
             return
-                new ExceptionPolicyGroup<TSrc, TEnd>(
-                    new ReadOnlyDictionary<string, ExceptionPolicy<TSrc, TEnd>>(policyDict));
+                new ExceptionPolicyGroup<TSrc, TDst>
+                    (new ReadOnlyDictionary<string, ExceptionPolicy<TSrc, TDst>>(policyDict));
         }
     }
 }

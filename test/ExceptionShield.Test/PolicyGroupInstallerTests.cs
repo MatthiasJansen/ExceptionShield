@@ -44,11 +44,13 @@ namespace ExceptionShield.Test
         {
             /// <inheritdoc />
             protected override CompletePolicyDefinition<OutOfMemoryException, AppDomainUnloadedException> Provide(
-                DefaultPolicyDefinitionBuilderHead<OutOfMemoryException, AppDomainUnloadedException> builder)
+                DefaultPolicyDefinitionBuilder<OutOfMemoryException, AppDomainUnloadedException> builder)
             {
                 return builder
                     .Start<AccessViolationException>(c => c.Set<Handler1>())
-                    .ThenComplete(c => c.Set<Handler2>());
+                    .ThenComplete(c => c.Set<Handler2>())
+                    .WithoutTerminator()  
+                    ;
             }
         }
 

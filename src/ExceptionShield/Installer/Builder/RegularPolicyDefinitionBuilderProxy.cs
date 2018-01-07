@@ -13,13 +13,13 @@ using System;
 
 namespace ExceptionShield.Installer.Builder
 {
-    public class PolicyDefinitionBuilder<TSrc, TEnd>
+    public class RegularPolicyDefinitionBuilderProxy<TSrc, TEnd>
         where TSrc : Exception
         where TEnd : Exception
     {
-        public PolicyDefBuilderHead<TSrc, TEnd> SetContext(string context)
+        public PolicyBuilderHead<TSrc, TEnd> SetContext(string context)
         {
-            return new PolicyDefBuilderHead<TSrc, TEnd>(context);
+            return new PolicyBuilderHead<TSrc, TEnd>(context);
         }
     }
 }

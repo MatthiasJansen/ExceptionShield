@@ -15,6 +15,11 @@ ExceptionShield is a exception manager, with the simple goal of making exception
 
 #### Policy Groups
 
+Policy groups are used to take care of special cases. In many situations a single policy will suffice to handle a certain exception.
+The concept of policy groups enables us to define handling for special cases. These special cases are differentiated by context.
+Each group requires at least one policy which is the default policy. This policy takes effect whenever no more specific context could be matched.
+Additional policies can be provided together with the context in which they are supposed to take effect.
+
 #### Policies
 
 #### Handlers

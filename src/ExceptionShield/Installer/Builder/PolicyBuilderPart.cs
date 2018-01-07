@@ -9,29 +9,13 @@
 
 using System;
 using System.Collections.Generic;
-using ExceptionShield.Handlers;
 using ExceptionShield.Policies;
 
 #endregion
 
 namespace ExceptionShield.Installer.Builder
 {
-    public class HandlerSpecifier<TSrc, TTar>
-        where TSrc : Exception
-        where TTar : Exception
-    {
-        private Type handlerSpecification;
-
-        public void Set<THandler>()
-            where THandler : ExceptionHandler<TSrc, TTar>
-        {
-            this.handlerSpecification = typeof(THandler);
-        }
-
-        internal Type HandlerType => this.handlerSpecification;
-    }
-
-    public class PolicyDefBuilderPart<TSrc, TCur, TEnd>
+    public class PolicyBuilderPart<TSrc, TCur, TEnd>
         where TSrc : Exception // the original exception
         where TCur : Exception // the current exception
         where TEnd : Exception // the final exception
@@ -39,13 +23,13 @@ namespace ExceptionShield.Installer.Builder
         private readonly string context;
         private readonly Dictionary<Type, Type> handlers;
 
-        public PolicyDefBuilderPart(string context, Dictionary<Type, Type> handlers)
+        public PolicyBuilderPart(string context, Dictionary<Type, Type> handlers)
         {
             this.handlers = handlers;
             this.context = context;
         }
 
-        public PolicyDefBuilderPart<TSrc, TTar, TEnd>
+        public PolicyBuilderPart<TSrc, TTar, TEnd>
             Then<TTar>(Action<HandlerSpecifier<TCur, TTar>> action)
 
             where TTar : Exception
@@ -55,19 +39,16 @@ namespace ExceptionShield.Installer.Builder
 
             this.handlers.Add(typeof(TCur), handlerSpecifier.HandlerType);
 
-            return new PolicyDefBuilderPart<TSrc, TTar, TEnd>(this.context, this.handlers);
+            return new PolicyBuilderPart<TSrc, TTar, TEnd>(this.context, this.handlers);
         }
 
-        public CompletePolicyDefinition<TSrc, TEnd> ThenComplete(Action<HandlerSpecifier<TCur, TEnd>> action)
+        public PolicyBuilderTail<TSrc, TEnd> ThenComplete(Action<HandlerSpecifier<TCur, TEnd>> action)
         {
             var handlerSpecifier = new HandlerSpecifier<TCur, TEnd>();
             action(handlerSpecifier);
 
             this.handlers.Add(typeof(TCur), handlerSpecifier.HandlerType);
-
-            var policy = new ExceptionPolicy<TSrc, TEnd>(this.handlers);
-
-            return new CompletePolicyDefinition<TSrc, TEnd>(this.context, policy);
+            return new PolicyBuilderTail<TSrc, TEnd>(this.context, this.handlers);
         }
     }
 }

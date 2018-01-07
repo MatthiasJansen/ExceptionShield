@@ -19,26 +19,17 @@ using JetBrains.Annotations;
 
 namespace ExceptionShield.Policies
 {
-    public class ExceptionPolicy<TSrc, TEnd>
-        : ExceptionPolicy<TSrc, TEnd, VoidTerminator<TEnd>>
-        where TEnd : Exception
-        where TSrc : Exception
-    {
-        public ExceptionPolicy(Dictionary<Type, Type> handlerDefinitions) : base(handlerDefinitions)
-        {
-        }
-    }
-
-    public class ExceptionPolicy<TSrc, TEnd, TTer> : ExceptionPolicyBase
+    public class ExceptionPolicy<TSrc, TEnd> : ExceptionPolicyBase
         where TSrc : Exception
         where TEnd : Exception
-        where TTer : TerminatorBase<TEnd>
     {
-        private readonly Dictionary<Type, Type> handlerDefinitions;
+        private readonly IReadOnlyDictionary<Type, Type> handlerDefinitions;
+        private readonly Type terminator;
 
-        public ExceptionPolicy(Dictionary<Type, Type> handlerDefinitions)
+        public ExceptionPolicy(IReadOnlyDictionary<Type, Type> handlerDefinitions, Type terminator = null)
         {
             this.handlerDefinitions   = handlerDefinitions;
+            this.terminator = terminator;
         }
 
         public override Type Handles => typeof(TSrc);
@@ -50,7 +41,7 @@ namespace ExceptionShield.Policies
             var cur = src;
             foreach (var handlerDesc in this.handlerDefinitions)
             {
-                var handler  = (ExceptionHandlerBase) resolver.Resolve(handlerDesc.Value);
+                var handler = resolver.Resolve(handlerDesc.Value) as ExceptionHandlerBase;
 
                 cur = handler?.Handle(cur);
                 if (cur == null)
@@ -59,15 +50,19 @@ namespace ExceptionShield.Policies
                 }
             }
 
+            return this.terminator == null 
+                       ? cur // No terminator was defined, the exception will be returned for re-throwing.
+                       : Terminate(resolver, src as TSrc, cur as TEnd);
+        }
 
-            // No terminator was defined, the exception will be returned for re-throwing.
-            if (typeof(TTer) == typeof(VoidTerminator<TEnd>))
+        private Exception Terminate(IExceptionalResolver resolver, TSrc src, TEnd cur)
+        {
+            if (!(resolver.Resolve(this.terminator) is TerminatorBase<TEnd> terminator))
             {
                 return cur;
             }
 
-            var terminator = resolver.Resolve<TTer>();
-            terminator.Terminate((TEnd) cur);
+            terminator.Terminate(cur);
 
             return null;
         }

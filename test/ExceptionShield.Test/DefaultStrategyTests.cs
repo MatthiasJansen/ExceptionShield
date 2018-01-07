@@ -43,24 +43,24 @@ namespace ExceptionShield.Test
                     PolicyGroupBuilder.Create<L1Ex, Exception>(d =>
                                                                    d.StartAndComplete(c => c
                                                                                           .Set<ExceptionHandler<L1Ex
-                                                                                              , Exception>>()));
+                                                                                              , Exception>>()).WithoutTerminator());
                 var g2Cn =
                     PolicyGroupBuilder.Create<L2Ex, Exception>(d =>
                                                                    d.StartAndComplete(c => c
                                                                                           .Set<ExceptionHandler<L2Ex
-                                                                                              , Exception>>()));
+                                                                                              , Exception>>()).WithoutTerminator());
                 var g3Cn =
                     PolicyGroupBuilder.Create<L3Ex, Exception>(d =>
                                                                    d.StartAndComplete(c => c
                                                                                           .Set<ExceptionHandler<L3Ex
-                                                                                              , Exception>>()));
+                                                                                              , Exception>>()).WithoutTerminator());
 
                 var g1Cs =
                     PolicyGroupBuilder
                         .Create<L1Ex, Exception
-                        >(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()),
+                        >(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()).WithoutTerminator(),
                           s => s.SetContext("special")
-                                .StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()));
+                                .StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()).WithoutTerminator());
 
                 yield return new object[]
                              {
