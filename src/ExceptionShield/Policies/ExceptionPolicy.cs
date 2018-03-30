@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ExceptionShield.Exceptions;
 using ExceptionShield.Handlers;
 using ExceptionShield.Plugable.Resolver;
@@ -24,12 +25,27 @@ namespace ExceptionShield.Policies
         where TEnd : Exception
     {
         private readonly IReadOnlyDictionary<Type, Type> handlerDefinitions;
-        private readonly Type terminator;
+        private readonly Type terminatorType;
 
         public ExceptionPolicy(IReadOnlyDictionary<Type, Type> handlerDefinitions, Type terminator = null)
         {
+            if (terminator != null)
+            {
+                // needs to be any subtype of TerminatorBase
+                // with a generic type in the inheritance chain of TEnd, but not more specific.
+                if (!terminator.IsSubclassOfRawGeneric(typeof(TerminatorBase<>)))
+                {
+                    throw new ArgumentException(nameof(terminator));
+                }
+
+                if (!typeof(TEnd).IsAssignableFrom(terminator.GenericTypeArguments.Single()))
+                {
+                    throw new ArgumentException(nameof(terminator));
+                }
+            }
+
             this.handlerDefinitions   = handlerDefinitions;
-            this.terminator = terminator;
+            this.terminatorType = terminator;
         }
 
         public override Type Handles => typeof(TSrc);
@@ -50,19 +66,14 @@ namespace ExceptionShield.Policies
                 }
             }
 
-            return this.terminator == null 
-                       ? cur // No terminator was defined, the exception will be returned for re-throwing.
+            return this.terminatorType == null 
+                       ? cur // No terminatorType was defined, the exception will be returned for re-throwing.
                        : Terminate(resolver, src as TSrc, cur as TEnd);
         }
 
         private Exception Terminate(IExceptionalResolver resolver, TSrc src, TEnd cur)
         {
-            if (!(resolver.Resolve(this.terminator) is TerminatorBase<TEnd> terminator))
-            {
-                return cur;
-            }
-
-            terminator.Terminate(cur);
+            ((TerminatorBase<TEnd>)resolver.Resolve(this.terminatorType)).Terminate(cur);
 
             return null;
         }

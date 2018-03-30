@@ -19,11 +19,6 @@ using ExceptionShield.Terminators;
 
 namespace ExceptionShield.Installer
 {
-    public interface IPolicyGroupInstaller
-    {
-        ExceptionPolicyGroupBase Provide();
-    }
-
     public abstract class PolicyGroupInstaller<TSrc, TDst> : IPolicyGroupInstaller where TSrc : Exception
         where TDst : Exception
     {

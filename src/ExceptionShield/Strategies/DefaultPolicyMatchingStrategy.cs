@@ -32,12 +32,12 @@ namespace ExceptionShield.Strategies
                 if (policyGroup != null)
                 {
                     var policy = default(ExceptionPolicyBase);
-                    if (context == Context.Default)
+                    if (context != Context.Default)
                         policy = policyGroup.PolicyByContextOrDefault(context);
 
                     policy = policy ?? policyGroup.PolicyByContextOrDefault(Context.Default);
-                    if (policy != null)
-                        return policy;
+                    
+                    return policy;
                 }
 
                 currentType = currentType.GetTypeInfo().BaseType;

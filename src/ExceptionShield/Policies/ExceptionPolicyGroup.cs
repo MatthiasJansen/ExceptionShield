@@ -10,6 +10,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using ExceptionShield.Extensions;
 
@@ -18,9 +19,9 @@ namespace ExceptionShield.Policies
     public class ExceptionPolicyGroup<TSrc, TEnd> : ExceptionPolicyGroupBase
         where TEnd : Exception where TSrc : Exception
     {
-        private readonly ReadOnlyDictionary<string, ExceptionPolicy<TSrc, TEnd>> policyDictionary;
+        private readonly IReadOnlyDictionary<string, ExceptionPolicy<TSrc, TEnd>> policyDictionary;
 
-        public ExceptionPolicyGroup(ReadOnlyDictionary<string, ExceptionPolicy<TSrc, TEnd>> policyDictionary)
+        public ExceptionPolicyGroup(IReadOnlyDictionary<string, ExceptionPolicy<TSrc, TEnd>> policyDictionary)
         {
             this.policyDictionary = policyDictionary;
         }

@@ -9,36 +9,12 @@
 
 using System;
 using System.Collections.Generic;
-using ExceptionShield.Policies;
 using ExceptionShield.Terminators;
 
 #endregion
 
 namespace ExceptionShield.Installer.Builder
 {
-    public class CompletePolicyDefinition<TSrc, TDst>
-        where TSrc : Exception
-        where TDst : Exception
-    {
-        private readonly IReadOnlyDictionary<Type, Type> policyDict;
-        private readonly string context;
-        private readonly Type terminator;
-
-        public CompletePolicyDefinition(string context, IReadOnlyDictionary<Type, Type> policyDict, Type terminator)
-        {
-            this.context = context;
-            this.policyDict = policyDict;
-            this.terminator = terminator;
-        }
-
-        public ExceptionPolicy<TSrc, TDst> CreatePolicy()
-        {
-            return new ExceptionPolicy<TSrc, TDst>(this.policyDict, this.terminator);
-        }
-
-        public string Context => this.context;
-    }
-
     public class PolicyBuilderTail<TSrc, TEnd>
         where TSrc : Exception
         where TEnd : Exception
@@ -51,10 +27,6 @@ namespace ExceptionShield.Installer.Builder
             this.policy = policy;
             this.context = context;
         }
-
-        //public string Context { get; }
-
-        //public IReadOnlyDictionary<Type, Type> Policy { get; }
 
         public CompletePolicyDefinition<TSrc,TEnd> WithTerminator<TTer>()
         where TTer : TerminatorBase<TEnd>

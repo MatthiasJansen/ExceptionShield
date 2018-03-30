@@ -17,16 +17,6 @@ using ExceptionShield.Policies;
 
 namespace ExceptionShield.Installer.Builder
 {
-    public delegate CompletePolicyDefinition<TSrc, TEnd>
-        DefaultCreator<TSrc, TEnd>(DefaultPolicyDefinitionBuilder<TSrc, TEnd> builder)
-        where TSrc : Exception
-        where TEnd : Exception;
-
-    public delegate CompletePolicyDefinition<TSrc, TEnd>
-        RegularCreator<TSrc, TEnd>(RegularPolicyDefinitionBuilderProxy<TSrc, TEnd> builderProxy)
-        where TSrc : Exception
-        where TEnd : Exception;
-
     public class PolicyGroupBuilder
     {
         public static ExceptionPolicyGroup<TSrc, TDst> Create<TSrc, TDst>(
