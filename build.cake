@@ -49,7 +49,8 @@ Task("Build")
 
 // Run dotnet pack to produce NuGet packages from our projects. 
 Task("Pack")
-    .IsDependentOn("Build")
+    .IsDependentOn("Test")
+    .IsDependentOn("Coverage")
     .Does(() =>
     {
         var settings = new DotNetCorePackSettings()
@@ -97,22 +98,15 @@ Task("Test")
 
 //#tool "nuget:?package=xunit.runner.console"
 Task("Coverage")
-    .IsDependentOn("Pack")
     .Does(() =>
     {
-        var projects = GetFiles("./src/**/*.csproj");
-        // foreach(var project in projects)
-        // {
-        //     TransformTextFile(project.FullPath, ">", "<")
-        //         .WithToken("portable", ">full<")
-        //         .Save(project.FullPath);
-        // }
-
-        projects = GetFiles("./test/**/*.csproj");
+        var projects = GetFiles("./test/**/*.csproj");
         var resultsFile = artifactsDirectory.CombineWithFilePath("coverage.xml");
 
-        DeleteFile(resultsFile.FullPath);
-
+        if (System.IO.File.Exists(resultsFile)){
+            DeleteFile(resultsFile.FullPath);
+        }
+        
         foreach(var project in projects)
         {
             OpenCover(
@@ -158,6 +152,7 @@ Task("Coverage")
 Task("Default")
     .IsDependentOn("Test")
     .IsDependentOn("Coverage")
+    .IsDependentOn("Pack")
     ;
  
 // Executes the task specified in the target argument.
