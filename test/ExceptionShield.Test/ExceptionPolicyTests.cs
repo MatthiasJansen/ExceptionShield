@@ -11,21 +11,40 @@
 
 using System;
 using ExceptionShield.Policies;
+using ExceptionShield.Terminators;
+using ExceptionShield.Test.Scaffolding;
 using FluentAssertions;
 using Xunit;
 
 namespace ExceptionShield.Test
 {
-    
     public class ExceptionPolicyTests
     {
         [Fact]
         public void Assert_ThatCorrectTypeGuidsAreAvailable()
         {
-            var policy = new ExceptionPolicy<TimeoutException, NotSupportedException>(null);
+            var policy = new ExceptionPolicy<AppleException, BananaException>(null);
 
-            policy.Handles.Should().Be(typeof(TimeoutException));
-            policy.Returns.Should().Be(typeof(NotSupportedException));
+            policy.Handles.Should().Be(typeof(AppleException));
+            policy.Returns.Should().Be(typeof(BananaException));
+        }
+
+        [Fact]
+        public void Should_ThrowConfigurationExceptionWhenTerminatorMissmatchIsFound()
+        {
+            Action ctor
+                = () => new ExceptionPolicy<AppleException, BananaException>(null, typeof(VoidTerminator<CityException>));
+
+            ctor.Should().Throw<ArgumentException>();
+        }        
+        
+        [Fact]
+        public void Should_ThrowConfigurationExceptionWhenTerminatorMissmatchIsFound_2()
+        {
+            Action ctor
+                = () => new ExceptionPolicy<AppleException, BananaException>(null, typeof(VoidTerminator<FruitException>));
+
+            ctor.Should().Throw<ArgumentException>();
         }
     }
 }

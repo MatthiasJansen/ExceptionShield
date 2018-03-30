@@ -62,7 +62,7 @@ namespace ExceptionShield.Test
             var manager = new ExceptionManager(new []{policyGroup});
 
             manager.Invoking(_ => _.Handle(new OutOfMemoryException()))
-                   .ShouldThrowExactly<AppDomainUnloadedException>();
+                   .Should().ThrowExactly<AppDomainUnloadedException>();
         }
     }
 }

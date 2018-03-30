@@ -40,27 +40,29 @@ namespace ExceptionShield.Test
             get
             {
                 var g1Cn =
-                    PolicyGroupBuilder.Create<L1Ex, Exception>(d =>
-                                                                   d.StartAndComplete(c => c
-                                                                                          .Set<ExceptionHandler<L1Ex
-                                                                                              , Exception>>()).WithoutTerminator());
+                    PolicyGroupBuilder.Create<L1Ex, Exception>
+                        (d => d.StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>())
+                               .WithoutTerminator()
+                        );
+
                 var g2Cn =
-                    PolicyGroupBuilder.Create<L2Ex, Exception>(d =>
-                                                                   d.StartAndComplete(c => c
-                                                                                          .Set<ExceptionHandler<L2Ex
-                                                                                              , Exception>>()).WithoutTerminator());
+                    PolicyGroupBuilder.Create<L2Ex, Exception>
+                        (d => d.StartAndComplete(c => c.Set<ExceptionHandler<L2Ex, Exception>>())
+                               .WithoutTerminator()
+                        );
                 var g3Cn =
-                    PolicyGroupBuilder.Create<L3Ex, Exception>(d =>
-                                                                   d.StartAndComplete(c => c
-                                                                                          .Set<ExceptionHandler<L3Ex
-                                                                                              , Exception>>()).WithoutTerminator());
+                    PolicyGroupBuilder.Create<L3Ex, Exception>
+                        (d => d.StartAndComplete(c => c.Set<ExceptionHandler<L3Ex, Exception>>())
+                               .WithoutTerminator()
+                        );
 
                 var g1Cs =
                     PolicyGroupBuilder
                         .Create<L1Ex, Exception
                         >(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()).WithoutTerminator(),
                           s => s.SetContext("special")
-                                .StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()).WithoutTerminator());
+                                .StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>())
+                                .WithoutTerminator());
 
                 yield return new object[]
                              {
@@ -125,7 +127,7 @@ namespace ExceptionShield.Test
 
         [Theory]
         [MemberData(nameof(TestCases))]
-        public void T1(Type requested, Dictionary<Type, ExceptionPolicyGroupBase> policyGroups, string context,
+        public void ShouldSelect_ExpectedPolicy(Type requested, Dictionary<Type, ExceptionPolicyGroupBase> policyGroups, string context,
                        Type expected)
         {
             var strategy = new DefaultPolicyMatchingStrategy();

@@ -32,8 +32,8 @@ namespace ExceptionShield.Test
         {
             var terminator = new SpecializedDummyTerminator();
 
-            terminator.Invoking(t => t.Terminate(new Exception())).ShouldNotThrow();
-            terminator.Invoking(t => t.Terminate(null)).ShouldNotThrow();
+            terminator.Invoking(t => t.Terminate(new Exception())).Should().NotThrow();
+            terminator.Invoking(t => t.Terminate(null)).Should().NotThrow();
         }
     }
 }

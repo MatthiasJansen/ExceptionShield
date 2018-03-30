@@ -122,7 +122,7 @@ namespace ExceptionShield.Test
         {
             var manager = new ExceptionManager(Enumerable.Empty<ExceptionPolicyGroupBase>());
             manager.Invoking(m => m.Handle(new OutOfMemoryException(), string.Empty))
-                   .ShouldThrowExactly<PolicyMissingException>();
+                   .Should().ThrowExactly<PolicyMissingException>();
         }
 
 
@@ -132,7 +132,7 @@ namespace ExceptionShield.Test
             var manager = new ExceptionManager(Enumerable.Empty<ExceptionPolicyGroupBase>());
 
             manager.Invoking(m => m.Handle(new OutOfMemoryException(), null))
-                   .ShouldThrowExactly<PolicyMissingException>();
+                   .Should().ThrowExactly<PolicyMissingException>();
         }
 
 
@@ -155,7 +155,7 @@ namespace ExceptionShield.Test
 
 
             manager.Invoking(m => m.Handle(new OutOfMemoryException()))
-                   .ShouldThrowExactly<Exception>();
+                   .Should().ThrowExactly<Exception>();
         }
 
         [Fact]
@@ -178,7 +178,7 @@ namespace ExceptionShield.Test
                                                });
 
             manager.Invoking(m => m.Handle(new OutOfMemoryException()))
-                   .ShouldThrowExactly<Exception>();
+                   .Should().ThrowExactly<Exception>();
         }
 
         [Fact]
@@ -203,7 +203,7 @@ namespace ExceptionShield.Test
                                                new DefaultPolicyMatchingStrategy());
 
             manager.Invoking(m => m.Handle(new OutOfMemoryException()))
-                   .ShouldThrowExactly<Exception>();
+                   .Should().ThrowExactly<Exception>();
         }
 
         [Fact]
@@ -222,7 +222,7 @@ namespace ExceptionShield.Test
                                                new DefaultPolicyMatchingStrategy());
 
             manager.Invoking(m => m.Handle(new OutOfMemoryException()))
-                   .ShouldThrowExactly<PolicyMissingException>();
+                   .Should().ThrowExactly<PolicyMissingException>();
         }
 
         [Fact]
@@ -253,7 +253,7 @@ namespace ExceptionShield.Test
                  , new DefaultPolicyMatchingStrategy());
 
             manager.Invoking(m => m.Handle(exception))
-                   .ShouldThrowExactly<DummyException>();
+                   .Should().ThrowExactly<DummyException>();
         }
     }
 }

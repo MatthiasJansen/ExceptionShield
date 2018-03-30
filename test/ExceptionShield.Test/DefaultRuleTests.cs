@@ -40,7 +40,7 @@ namespace ExceptionShield.Test
             var manager = new ExceptionManager(new []{policyGroup}, defaultRuleMock.Object);
 
             manager.Invoking(m => m.Handle(new OutOfMemoryException()))
-                .ShouldThrowExactly<PolicyMissingException>();
+                .Should().ThrowExactly<PolicyMissingException>();
 
             defaultRuleMock.Verify();
         }
