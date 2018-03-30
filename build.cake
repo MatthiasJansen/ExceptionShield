@@ -103,7 +103,7 @@ Task("Coverage")
         var projects = GetFiles("./test/**/*.csproj");
         var resultsFile = artifactsDirectory.CombineWithFilePath("coverage.xml");
 
-        if (System.IO.File.Exists(resultsFile)){
+        if (System.IO.File.Exists(resultsFile.FullPath)){
             DeleteFile(resultsFile.FullPath);
         }
         
