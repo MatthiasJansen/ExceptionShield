@@ -1,21 +1,27 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Matthias Jansen</Authors>
     <Company />
     <Description>Exceptional is an exception manager with the simple goal to make exception management exceptionally easy.</Description>
     <SignAssembly>False</SignAssembly>
     <AssemblyOriginatorKeyFile>Exceptional.pfx</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://github.com/MatthiasJansen/ExceptionShield/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/MatthiasJansen/ExceptionShield</PackageProjectUrl>
     <RepositoryUrl>https://github.com/MatthiasJansen/ExceptionShield</RepositoryUrl>
     <PackageTags>manager handler exception policy shield exceptional</PackageTags>
-    <DebugType>Full</DebugType>
+    <DebugType>full</DebugType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <RuntimeFrameworkVersion>2.0.6</RuntimeFrameworkVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>

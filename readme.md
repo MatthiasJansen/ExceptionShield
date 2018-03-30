@@ -4,9 +4,9 @@ ExceptionShield is a exception manager, with the simple goal of making exception
 
 ## Builds & CI
 
-| Branch      | Status           |
-|:-----------:|:----------------:|
-| master      | ![Build Status](https://matthias-jansen.visualstudio.com/_apis/public/build/definitions/b510d81b-9eed-4f52-be90-b5b864a4aa98/4/badge) |
+| Branch      | Status           | Coverage |
+|:-----------:|:----------------:|:--------:|
+| master      | ![Build Status](https://matthias-jansen.visualstudio.com/_apis/public/build/definitions/b510d81b-9eed-4f52-be90-b5b864a4aa98/4/badge) | [![codecov](https://codecov.io/gh/MatthiasJansen/ExceptionShield/branch/master/graph/badge.svg)](https://codecov.io/gh/MatthiasJansen/ExceptionShield) |
 
 ## Responsibilities
 ## Particularities
@@ -46,3 +46,5 @@ Whenever the exception resulting from a policy is not supposed to be thrown in t
 ##### ORM
 ##### Testing
 ##### Other Frameworks
+
+Coming soon!
