@@ -36,9 +36,16 @@ Task("Build")
     .IsDependentOn("Clean")
     .IsDependentOn("NuGetRestore")
     .IsDependentOn("Version")
-        .Does(() => {
-        DotNetCoreBuild("ExceptionShield.sln");
-    });
+        .Does(() => 
+        {
+            var settings = new DotNetCoreBuildSettings
+            {
+                Configuration = configuration
+            };
+
+            DotNetCoreBuild("ExceptionShield.sln", settings);
+        }
+    );
 
 // Run dotnet pack to produce NuGet packages from our projects. 
 Task("Pack")
@@ -70,7 +77,7 @@ Task("Test")
         {
             var settings = new DotNetCoreTestSettings
                 {
-                    Configuration = "Release",
+                    Configuration = configuration,
                     NoBuild = true,
                 };
             var xUnitSettings = new XUnit2Settings{
@@ -133,15 +140,18 @@ Task("Coverage")
             );
         }
         
-        ReplaceTextInFiles(resultsFile.FullPath, "\r\n", "\n");
-        
-        var coverageUploadSettings = new CodecovSettings {
-            Files = new[] { resultsFile.FullPath },
-            Token = codecovToken,
-            Flags = "ut"
-        };
+        if (codecovToken != "00000000-0000-0000-0000-000000000000")
+        {
+            ReplaceTextInFiles(resultsFile.FullPath, "\r\n", "\n");
+            
+            var coverageUploadSettings = new CodecovSettings {
+                Files = new[] { resultsFile.FullPath },
+                Token = codecovToken,
+                Flags = "ut"
+            };
 
-        Codecov(coverageUploadSettings);
+            Codecov(coverageUploadSettings);
+        }
     });
 
 // The default task to run if none is explicitly specified.
