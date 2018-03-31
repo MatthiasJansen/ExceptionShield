@@ -10,7 +10,7 @@ namespace ExceptionShield.Installer.Builder
         private Type handlerSpecification;
 
         public void Set<THandler>()
-            where THandler : ExceptionHandler<TSrc, TTar>
+            where THandler : IExceptionHandler<TSrc, TTar>
         {
             this.handlerSpecification = typeof(THandler);
         }

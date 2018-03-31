@@ -51,10 +51,7 @@ namespace ExceptionShield.Installer
         protected abstract CompletePolicyDefinition<TSrc, TDst> 
             Provide(DefaultPolicyDefinitionBuilder<TSrc, TDst> builder);
 
-        protected virtual IEnumerable<CompletePolicyDefinition<TSrc, TDst>> 
-            Provide(RegularPolicyDefinitionBuilderProxy<TSrc, TDst> builderProxy)
-        {
-            yield break;
-        }
+        protected abstract IEnumerable<CompletePolicyDefinition<TSrc, TDst>>
+            Provide(RegularPolicyDefinitionBuilderProxy<TSrc, TDst> builderProxy);
     }
 }

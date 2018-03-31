@@ -17,6 +17,7 @@ using ExceptionShield.Installer.Builder;
 using ExceptionShield.Policies;
 using ExceptionShield.Rules;
 using ExceptionShield.Strategies;
+using ExceptionShield.Terminators;
 using ExceptionShield.Test.Scaffolding;
 using FluentAssertions;
 using Xunit;
@@ -77,8 +78,8 @@ namespace ExceptionShield.Test
                                                      });
 
             ctor.Should().Throw<ExceptionManagerConfigurationException>();
-        }
-
+        }        
+        
         [Fact]
         //[Description("Creates two policies which both handle the same exception type.")]
         public void FailureBehaviour02()
@@ -146,6 +147,48 @@ namespace ExceptionShield.Test
 
             manager.Invoking(m => m.Handle(new OutOfMemoryException()))
                    .Should().ThrowExactly<Exception>();
+        }        
+        
+        [Fact]
+        public void Handle_ShouldNotThrowTheResultingException_WhenThePolicyIsTerminated()
+        {
+            var policy1 = PolicyGroupBuilder
+                .Create<AppleException, PearException>
+                    (d => d
+                          .StartAndComplete(c => c.Set<ExceptionHandler<AppleException, PearException>>())
+                          .WithTerminator<VoidTerminator<PearException>>()
+                    );
+
+            policy1.Should().NotBeNull();
+            var manager = new ExceptionManager(new[]
+                                               {
+                                                   policy1
+                                               });
+
+
+            manager.Invoking(m => m.Handle(new AppleException()))
+                   .Should().NotThrow();
+        }        
+
+        [Fact]
+        public void Handle_ShouldThrowArgumentNullException_WhenExceptionIsNull()
+        {
+            var policy1 = PolicyGroupBuilder
+                .Create<AppleException, PearException>
+                    (d => d
+                          .StartAndComplete(c => c.Set<ExceptionHandler<AppleException, PearException>>())
+                          .WithTerminator<VoidTerminator<PearException>>()
+                    );
+
+            policy1.Should().NotBeNull();
+            var manager = new ExceptionManager(new[]
+                                               {
+                                                   policy1
+                                               });
+
+
+            manager.Invoking(m => m.Handle(null as Exception))
+                   .Should().ThrowExactly<ArgumentNullException>();
         }
 
         [Fact]

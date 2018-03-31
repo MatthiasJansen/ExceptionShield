@@ -10,8 +10,11 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using ExceptionShield.Handlers;
 using ExceptionShield.Installer;
 using ExceptionShield.Installer.Builder;
+using ExceptionShield.Test.Scaffolding;
 using FluentAssertions;
 using Xunit;
 
@@ -20,37 +23,54 @@ namespace ExceptionShield.Test
     
     public class PolicyGroupInstallerTests
     {
-        internal class Handler1 : Handlers.ExceptionHandler<OutOfMemoryException, AccessViolationException>
+        internal class Handler1 : Handlers.ExceptionHandler<AppleException, CherryException>
         {
             /// <inheritdoc />
-            public override AccessViolationException Handle(OutOfMemoryException src)
+            public override CherryException Handle(AppleException src)
             {
                 Console.WriteLine($"{this.GetType().Name}");
                 return base.Handle(src);
             }
         }
 
-        internal class Handler2 : Handlers.ExceptionHandler<AccessViolationException, AppDomainUnloadedException>
+        internal class Handler2 : ExceptionHandler<CherryException, PearException>
         {
             /// <inheritdoc />
-            public override AppDomainUnloadedException Handle(AccessViolationException src)
+            public override PearException Handle(CherryException src)
             {
                 Console.WriteLine($"{this.GetType().Name}");
                 return base.Handle(src);
             }
         }
 
-        internal class DummyPolicyGroupInstaller : PolicyGroupInstaller<OutOfMemoryException, AppDomainUnloadedException>
+        internal class Handler3 : ExceptionHandler<AppleException, PearException>
         {
             /// <inheritdoc />
-            protected override CompletePolicyDefinition<OutOfMemoryException, AppDomainUnloadedException> Provide(
-                DefaultPolicyDefinitionBuilder<OutOfMemoryException, AppDomainUnloadedException> builder)
+            public override PearException Handle(AppleException src)
+            {
+                return base.Handle(src);
+            }
+        }
+
+        internal class DummyPolicyGroupInstaller : PolicyGroupInstaller<AppleException, PearException>
+        {
+            /// <inheritdoc />
+            protected override CompletePolicyDefinition<AppleException, PearException> Provide(
+                DefaultPolicyDefinitionBuilder<AppleException, PearException> builder)
             {
                 return builder
-                    .Start<AccessViolationException>(c => c.Set<Handler1>())
+                    .Start<CherryException>(c => c.Set<Handler1>())
                     .ThenComplete(c => c.Set<Handler2>())
                     .WithoutTerminator()  
                     ;
+            }
+
+            /// <inheritdoc />
+            protected override IEnumerable<CompletePolicyDefinition<AppleException, PearException>> Provide(RegularPolicyDefinitionBuilderProxy<AppleException, PearException> builderProxy)
+            {
+                yield return builderProxy.SetContext("red wine")
+                                         .StartAndComplete(c => c.Set<Handler3>())
+                                         .WithoutTerminator();
             }
         }
 
@@ -61,8 +81,8 @@ namespace ExceptionShield.Test
 
             var manager = new ExceptionManager(new []{policyGroup});
 
-            manager.Invoking(_ => _.Handle(new OutOfMemoryException()))
-                   .Should().ThrowExactly<AppDomainUnloadedException>();
+            manager.Invoking(_ => _.Handle(new AppleException()))
+                   .Should().ThrowExactly<PearException>();
         }
     }
 }

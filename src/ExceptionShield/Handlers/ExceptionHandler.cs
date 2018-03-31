@@ -13,7 +13,7 @@ using System;
 
 namespace ExceptionShield.Handlers
 {
-    public class ExceptionHandler<TSrc, TEnd> : IExceptionHandler
+    public class ExceptionHandler<TSrc, TEnd> : IExceptionHandler<TSrc, TEnd>
         where TSrc : Exception
         where TEnd : Exception
     {

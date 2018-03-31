@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using ExceptionShield.Installer.Builder;
 using ExceptionShield.Plugable.Resolver;
+using ExceptionShield.Terminators;
 using ExceptionShield.Test.Scaffolding;
 using FluentAssertions;
 using Xunit;
@@ -31,7 +32,7 @@ namespace ExceptionShield.Test.Installer.Builder
                               }
                           });
 
-            var policy = tail.WithTerminator<Terminators.VoidTerminator<PearException>>();
+            var policy = tail.WithTerminator<VoidTerminator<PearException>>();
 
             var input = new AppleException();
 

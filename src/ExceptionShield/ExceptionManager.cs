@@ -23,16 +23,13 @@ namespace ExceptionShield
 {
     public class ExceptionManager : IExceptionManager
     {
-        [NotNull]
-        private readonly IUnconfiguredExceptionRule defaultRule;
-        [NotNull]
-        private readonly IPolicyMatchingStrategy strategy;
-        [NotNull]
-        private readonly IReadOnlyDictionary<Type, ExceptionPolicyGroupBase> policyGroupDictionary;
-        [NotNull]
-        private readonly IExceptionalResolver resolver = new DefaultResolver();
+        [NotNull] private readonly IUnconfiguredExceptionRule defaultRule;
+        [NotNull] private readonly IPolicyMatchingStrategy strategy;
+        [NotNull] private readonly IReadOnlyDictionary<Type, ExceptionPolicyGroupBase> policyGroupDictionary;
+        [NotNull] private readonly IExceptionalResolver resolver = new DefaultResolver();
 
-        public ExceptionManager(IEnumerable<ExceptionPolicyGroupBase> policyGroupDictionary, IUnconfiguredExceptionRule defaultRule = null, IPolicyMatchingStrategy strategy = null)
+        public ExceptionManager(IEnumerable<ExceptionPolicyGroupBase> policyGroupDictionary,
+                                IUnconfiguredExceptionRule defaultRule = null, IPolicyMatchingStrategy strategy = null)
         {
             try
             {
@@ -42,14 +39,7 @@ namespace ExceptionShield
             {
                 throw new ExceptionManagerConfigurationException();
             }
-            
-            this.strategy = strategy ?? new DefaultPolicyMatchingStrategy();
-            this.defaultRule = defaultRule ?? new PolicyMissingDefaultRule();
-        }
 
-        public ExceptionManager(IReadOnlyDictionary<Type, ExceptionPolicyGroupBase> policyGroupDictionary, IUnconfiguredExceptionRule defaultRule = null, IPolicyMatchingStrategy strategy = null)
-        {
-            this.policyGroupDictionary = policyGroupDictionary;
             this.strategy = strategy ?? new DefaultPolicyMatchingStrategy();
             this.defaultRule = defaultRule ?? new PolicyMissingDefaultRule();
         }
@@ -58,25 +48,31 @@ namespace ExceptionShield
         public void Handle<TSrc>(TSrc exception, string context = Context.Default)
             where TSrc : Exception
         {
+            if (exception == null)
+            {
+                throw new ArgumentNullException(nameof(exception));
+            }
+
+            if (string.IsNullOrWhiteSpace(context))
+            {
+                context = Context.Default;
+            }
+
             var result = HandleInner(exception, context);
 
             if (result != null)
+            {
                 throw result;
+            }
         }
 
         private Exception HandleInner<TSrc>(TSrc exception, string context)
             where TSrc : Exception
         {
-            if (exception == null)
-                throw new ArgumentNullException(nameof(exception));
-
-            if (string.IsNullOrWhiteSpace(context))
-                context = Context.Default;
-
             var policy = this.strategy.MatchPolicy(this.policyGroupDictionary, exception.GetType(), context);
             return policy != null
-                ? policy.Handle(this.resolver, exception)
-                : this.defaultRule.Apply(exception);
+                       ? policy.Handle(this.resolver, exception)
+                       : this.defaultRule.Apply(exception);
         }
     }
 }
