@@ -17,6 +17,7 @@ using ExceptionShield.Installer.Builder;
 using ExceptionShield.Policies;
 using ExceptionShield.Rules;
 using ExceptionShield.Strategies;
+using ExceptionShield.Test.Scaffolding;
 using FluentAssertions;
 using Xunit;
 
@@ -39,25 +40,18 @@ namespace ExceptionShield.Test
             }
         }
 
-        internal class TestExceptionHandlerB<TSrc> : ExceptionHandler<TSrc, DummyException>
+        internal class TestExceptionHandlerB<TSrc> : ExceptionHandler<TSrc, AppleException>
             where TSrc : Exception
         {
             public bool WasHandled { get; private set; }
 
-            public override DummyException Handle(TSrc src)
+            public override AppleException Handle(TSrc src)
             {
                 Console.WriteLine($"Handled Exception of type: {src.GetType()} with message: {src.Message}");
 
                 WasHandled = true;
-                var next = new DummyException(src.Message);
+                var next = new AppleException(src.Message);
                 return next;
-            }
-        }
-
-        internal class DummyException : Exception
-        {
-            public DummyException(string message) : base(message)
-            {
             }
         }
 
@@ -66,27 +60,23 @@ namespace ExceptionShield.Test
         public void FailureBehaviour01()
         {
             var policy1 = PolicyGroupBuilder
-                .Create<OutOfMemoryException, Exception>(
-                                                         d => d
-                                                              .StartAndComplete(c => c
-                                                                                    .Set<ExceptionHandler<
-                                                                                            OutOfMemoryException,
-                                                                                            Exception>
-                                                                                    >())
-                                                              .WithoutTerminator()
-                                                        );
+                .Create<OutOfMemoryException, Exception>
+                    (d => d.StartAndComplete(c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>())
+                           .WithoutTerminator()
+                    );
 
             var policy2 = PolicyGroupBuilder
                 .Create<OutOfMemoryException, Exception>
                     (d => d.StartAndComplete(c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>())
                            .WithoutTerminator());
 
+            Action ctor = () => new ExceptionManager(new[]
+                                                     {
+                                                         policy1,
+                                                         policy2
+                                                     });
 
-            Assert.Throws<ExceptionManagerConfigurationException>(() => new ExceptionManager(new[]
-                                                                                             {
-                                                                                                 policy1,
-                                                                                                 policy2
-                                                                                             }));
+            ctor.Should().Throw<ExceptionManagerConfigurationException>();
         }
 
         [Fact]
@@ -94,27 +84,27 @@ namespace ExceptionShield.Test
         public void FailureBehaviour02()
         {
             var policy1 = PolicyGroupBuilder
-                .Create<OutOfMemoryException, Exception>
+                .Create<AppleException, BerlinException>
                     (d => d
-                          .StartAndComplete(c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>())
+                          .StartAndComplete(c => c.Set<ExceptionHandler<AppleException, BerlinException>>())
                           .WithoutTerminator()
                     );
 
             var policy2 = PolicyGroupBuilder
-                .Create<OutOfMemoryException, NullReferenceException>
+                .Create<AppleException, BeirutException>
                     (d => d
-                          .StartAndComplete(c => c
-                                                .Set<ExceptionHandler<OutOfMemoryException, NullReferenceException>>())
+                          .StartAndComplete(c => c.Set<ExceptionHandler<AppleException, BeirutException>>())
                           .WithoutTerminator()
                     );
 
-            Assert.Throws<ExceptionManagerConfigurationException>(() =>
-                                                                      new ExceptionManager(new ExceptionPolicyGroupBase
-                                                                                               []
-                                                                                               {
-                                                                                                   policy1,
-                                                                                                   policy2
-                                                                                               }));
+            var policyGroup = new ExceptionPolicyGroupBase[]
+                              {
+                                  policy1,
+                                  policy2
+                              };
+
+            Action ctor = () => new ExceptionManager(policyGroup);
+            ctor.Should().Throw<ExceptionManagerConfigurationException>();
         }
 
         [Fact]
@@ -143,7 +133,7 @@ namespace ExceptionShield.Test
             var policy1 = PolicyGroupBuilder
                 .Create<OutOfMemoryException, Exception>
                     (d => d
-                         .StartAndComplete(c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>())
+                          .StartAndComplete(c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>())
                           .WithoutTerminator()
                     );
 
@@ -210,8 +200,8 @@ namespace ExceptionShield.Test
         public void ThrowsExceptionWhenNoTerminatorDefined()
         {
             var policy1 = PolicyGroupBuilder
-                .Create<DummyException, DummyException>
-                    (d => d.StartAndComplete(c => c.Set<TestExceptionHandler<DummyException>>())
+                .Create<AppleException, AppleException>
+                    (d => d.StartAndComplete(c => c.Set<TestExceptionHandler<AppleException>>())
                            .WithoutTerminator());
 
             policy1.Should().NotBeNull();
@@ -229,7 +219,7 @@ namespace ExceptionShield.Test
         public void UnWrappRuleTest01()
         {
             var policy2 = PolicyGroupBuilder
-                .Create<AggregateException, DummyException>
+                .Create<AggregateException, AppleException>
                     (
                      bd => bd.StartAndComplete(c => c.Set<TestExceptionHandlerB<AggregateException>>())
                              .WithoutTerminator(),
@@ -240,7 +230,7 @@ namespace ExceptionShield.Test
 
             var exception = new AggregateException("Greetings from outer exception",
                                                    Enumerable
-                                                       .Repeat(new DummyException("Greetings from inner Exception."),
+                                                       .Repeat(new AppleException("Greetings from inner Exception."),
                                                                1));
 
             policy2.Should().NotBeNull();
@@ -253,7 +243,7 @@ namespace ExceptionShield.Test
                  , new DefaultPolicyMatchingStrategy());
 
             manager.Invoking(m => m.Handle(exception))
-                   .Should().ThrowExactly<DummyException>();
+                   .Should().ThrowExactly<AppleException>();
         }
     }
 }

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ExceptionShield.Exceptions;
+using ExceptionShield.Extensions;
 using ExceptionShield.Handlers;
 using ExceptionShield.Plugable.Resolver;
 using ExceptionShield.Terminators;
@@ -33,7 +34,7 @@ namespace ExceptionShield.Policies
             {
                 // needs to be any subtype of TerminatorBase
                 // with a generic type in the inheritance chain of TEnd, but not more specific.
-                if (!terminator.IsSubclassOfRawGeneric(typeof(TerminatorBase<>)))
+                if (!terminator.IsSubclassOfOpenGeneric(typeof(TerminatorBase<>)))
                 {
                     throw new ArgumentException(nameof(terminator));
                 }

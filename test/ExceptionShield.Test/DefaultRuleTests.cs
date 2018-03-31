@@ -12,6 +12,7 @@
 using System;
 using ExceptionShield.Installer.Builder;
 using ExceptionShield.Rules;
+using ExceptionShield.Test.Scaffolding;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -31,9 +32,9 @@ namespace ExceptionShield.Test
                 ;
 
             var policyGroup = PolicyGroupBuilder
-                .Create<ExceptionManagerTests.DummyException, ExceptionManagerTests.DummyException>
+                .Create<AppleException, AppleException>
                 (
-                    d => d.StartAndComplete(c => c.Set<ExceptionManagerTests.TestExceptionHandler<ExceptionManagerTests.DummyException>>())
+                    d => d.StartAndComplete(c => c.Set<ExceptionManagerTests.TestExceptionHandler<AppleException>>())
                      .WithoutTerminator()
                 );
 

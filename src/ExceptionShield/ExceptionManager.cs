@@ -32,12 +32,6 @@ namespace ExceptionShield
         [NotNull]
         private readonly IExceptionalResolver resolver = new DefaultResolver();
 
-        public ExceptionManager(ExceptionManagerConfiguration configuration) : 
-            this(configuration.Policies, configuration.Rule, configuration.Strategy)
-        {
-            
-        }
-
         public ExceptionManager(IEnumerable<ExceptionPolicyGroupBase> policyGroupDictionary, IUnconfiguredExceptionRule defaultRule = null, IPolicyMatchingStrategy strategy = null)
         {
             try
