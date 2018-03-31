@@ -58,7 +58,7 @@ namespace ExceptionShield.Policies
             var cur = src;
             foreach (var handlerDesc in this.handlerDefinitions)
             {
-                var handler = resolver.Resolve(handlerDesc.Value) as ExceptionHandlerBase;
+                var handler = resolver.Resolve(handlerDesc.Value) as IExceptionHandler;
 
                 cur = handler?.Handle(cur);
                 if (cur == null)
@@ -69,10 +69,10 @@ namespace ExceptionShield.Policies
 
             return this.terminatorType == null 
                        ? cur // No terminatorType was defined, the exception will be returned for re-throwing.
-                       : Terminate(resolver, src as TSrc, cur as TEnd);
+                       : Terminate(resolver, cur as TEnd);
         }
 
-        private Exception Terminate(IExceptionalResolver resolver, TSrc src, TEnd cur)
+        private Exception Terminate(IExceptionalResolver resolver, TEnd cur)
         {
             ((TerminatorBase<TEnd>)resolver.Resolve(this.terminatorType)).Terminate(cur);
 

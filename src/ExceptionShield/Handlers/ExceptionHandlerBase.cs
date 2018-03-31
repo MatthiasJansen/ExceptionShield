@@ -13,8 +13,8 @@ using System;
 
 namespace ExceptionShield.Handlers
 {
-    public abstract class ExceptionHandlerBase
-    {
-        public abstract Exception Handle(Exception src);
-    }
+    //public abstract class ExceptionHandlerBase : IExceptionHandler
+    //{
+    //    public abstract Exception Handle(Exception src);
+    //}
 }

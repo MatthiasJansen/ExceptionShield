@@ -13,7 +13,7 @@ using System;
 
 namespace ExceptionShield.Handlers
 {
-    public class ExceptionHandler<TSrc, TEnd> : ExceptionHandlerBase
+    public class ExceptionHandler<TSrc, TEnd> : IExceptionHandler
         where TSrc : Exception
         where TEnd : Exception
     {
@@ -24,7 +24,7 @@ namespace ExceptionShield.Handlers
             return result;
         }
 
-        public sealed override Exception Handle(Exception src)
+        public Exception Handle(Exception src)
         {
             return Handle(src as TSrc);
         }

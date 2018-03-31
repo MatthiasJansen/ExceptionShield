@@ -28,10 +28,10 @@ namespace ExceptionShield.Test
 {
     public class ExceptionPolicyTests
     {
-        private class FaultyExceptionHandler : ExceptionHandlerBase
+        private class FaultyExceptionHandler : IExceptionHandler
         {
             /// <inheritdoc />
-            public override Exception Handle(Exception src)
+            public Exception Handle(Exception src)
             {
                 return null;
             }
