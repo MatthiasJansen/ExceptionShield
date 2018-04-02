@@ -1,42 +1,44 @@
 #region headers
 
-// Copyright (c) 2017 Matthias Jansen
+// Copyright (c) 2018 Matthias Jansen
 // See the LICENSE file in the project root for more information.
 
 #endregion
 
 #region imports
 
-#endregion
-
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using ExceptionShield.Extensions;
+
+#endregion
 
 namespace ExceptionShield.Policies
 {
-    public class ExceptionPolicyGroup<TSrc, TEnd> : ExceptionPolicyGroupBase
-        where TEnd : Exception where TSrc : Exception
+    public class ExceptionPolicyGroup<TSrc> : IExceptionPolicyGroup
+        where TSrc : Exception
     {
-        private readonly IReadOnlyDictionary<string, ExceptionPolicy<TSrc, TEnd>> policyDictionary;
+        private readonly IReadOnlyDictionary<string, IExceptionPolicy> policyDictionary;
 
-        public ExceptionPolicyGroup(IReadOnlyDictionary<string, ExceptionPolicy<TSrc, TEnd>> policyDictionary)
+        public ExceptionPolicyGroup(IReadOnlyDictionary<string, IExceptionPolicy> policyDictionary)
         {
             this.policyDictionary = policyDictionary;
         }
 
-        public override Type Handles => typeof(TSrc);
-        public override Type Returns => typeof(TEnd);
+        public Type Handles => typeof(TSrc);
 
-        public override ExceptionPolicyBase PolicyByContextOrDefault(string context)
+        public IExceptionPolicy PolicyByContextOrDefault(string context)
         {
             if (string.IsNullOrWhiteSpace(context))
+            {
                 context = Context.Default;
+            }
 
-            var policy = default(ExceptionPolicy<TSrc, TEnd>);
+            var policy = default(IExceptionPolicy);
             if (context != Context.Default)
+            {
                 policy = this.policyDictionary.GetValueByKeyOrDefault(context);
+            }
 
             return policy ?? this.policyDictionary.GetValueByKeyOrDefault(Context.Default);
         }

@@ -22,6 +22,10 @@ The concept of policy groups enables us to define handling for special cases. Th
 Each group requires at least one policy which is the default policy. This policy takes effect whenever no more specific context could be matched.
 Additional policies can be provided together with the context in which they are supposed to take effect.
 
+##### Example
+`
+a
+`
 #### Policies
 
 #### Handlers

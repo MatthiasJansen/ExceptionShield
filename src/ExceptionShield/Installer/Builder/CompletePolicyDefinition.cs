@@ -15,7 +15,13 @@ using ExceptionShield.Policies;
 
 namespace ExceptionShield.Installer.Builder
 {
-    public class CompletePolicyDefinition<TSrc, TDst>
+    public interface ICompletePolicyDefinition
+    {
+        string Context { get; }
+        IExceptionPolicy CreatePolicy();
+    }
+
+    public class CompletePolicyDefinition<TSrc, TDst> : ICompletePolicyDefinition
         where TSrc : Exception
         where TDst : Exception
     {
@@ -31,7 +37,7 @@ namespace ExceptionShield.Installer.Builder
 
         public string Context { get; }
 
-        public ExceptionPolicy<TSrc, TDst> CreatePolicy()
+        public IExceptionPolicy CreatePolicy()
         {
             return new ExceptionPolicy<TSrc, TDst>(this.policyDict, this.terminator);
         }

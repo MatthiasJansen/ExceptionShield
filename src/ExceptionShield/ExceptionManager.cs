@@ -25,10 +25,10 @@ namespace ExceptionShield
     {
         [NotNull] private readonly IUnconfiguredExceptionRule defaultRule;
         [NotNull] private readonly IPolicyMatchingStrategy strategy;
-        [NotNull] private readonly IReadOnlyDictionary<Type, ExceptionPolicyGroupBase> policyGroupDictionary;
+        [NotNull] private readonly IReadOnlyDictionary<Type, IExceptionPolicyGroup> policyGroupDictionary;
         [NotNull] private readonly IExceptionalResolver resolver = new DefaultResolver();
 
-        public ExceptionManager(IEnumerable<ExceptionPolicyGroupBase> policyGroupDictionary,
+        public ExceptionManager(IEnumerable<IExceptionPolicyGroup> policyGroupDictionary,
                                 IUnconfiguredExceptionRule defaultRule = null, IPolicyMatchingStrategy strategy = null)
         {
             try

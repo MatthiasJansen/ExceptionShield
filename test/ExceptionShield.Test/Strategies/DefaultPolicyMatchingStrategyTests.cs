@@ -26,7 +26,7 @@ namespace ExceptionShield.Test.Strategies
                 };
 
             var policyDict =
-                new Dictionary<string, ExceptionPolicy<FruitException, BerlinException>>
+                new Dictionary<string, IExceptionPolicy>
                 {
                     {
                         "bowl of fruits assembly",
@@ -35,11 +35,11 @@ namespace ExceptionShield.Test.Strategies
                 };
 
             var policyGroupDict =
-                new Dictionary<Type, ExceptionPolicyGroupBase>
+                new Dictionary<Type, IExceptionPolicyGroup>
                 {
                     {
                         typeof(FruitException),
-                        new ExceptionPolicyGroup<FruitException, BerlinException>(policyDict)
+                        new ExceptionPolicyGroup<FruitException>(policyDict)
                     }
                 };
             var exceptionType = typeof(AppleException);

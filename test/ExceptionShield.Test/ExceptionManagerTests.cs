@@ -61,14 +61,16 @@ namespace ExceptionShield.Test
         public void FailureBehaviour01()
         {
             var policy1 = PolicyGroupBuilder
-                .Create<OutOfMemoryException, Exception>
-                    (d => d.StartAndComplete(c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>())
+                .Create<BananaException>
+                    (d => d.SetTargetForDefaultContext<BananaException>()
+                          .StartAndComplete(c => c.Set<ExceptionHandler<BananaException, BananaException>>())
                            .WithoutTerminator()
                     );
 
             var policy2 = PolicyGroupBuilder
-                .Create<OutOfMemoryException, Exception>
-                    (d => d.StartAndComplete(c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>())
+                .Create<BananaException>
+                    (d => d.SetTargetForDefaultContext<BananaException>()
+                          .StartAndComplete(c => c.Set<ExceptionHandler<BananaException, BananaException>>())
                            .WithoutTerminator());
 
             Action ctor = () => new ExceptionManager(new[]
@@ -85,20 +87,20 @@ namespace ExceptionShield.Test
         public void FailureBehaviour02()
         {
             var policy1 = PolicyGroupBuilder
-                .Create<AppleException, BerlinException>
-                    (d => d
+                .Create<AppleException>
+                    (d => d.SetTargetForDefaultContext<BerlinException>()
                           .StartAndComplete(c => c.Set<ExceptionHandler<AppleException, BerlinException>>())
                           .WithoutTerminator()
                     );
 
             var policy2 = PolicyGroupBuilder
-                .Create<AppleException, BeirutException>
-                    (d => d
+                .Create<AppleException>
+                    (d => d.SetTargetForDefaultContext<BeirutException>()
                           .StartAndComplete(c => c.Set<ExceptionHandler<AppleException, BeirutException>>())
                           .WithoutTerminator()
                     );
 
-            var policyGroup = new ExceptionPolicyGroupBase[]
+            var policyGroup = new IExceptionPolicyGroup[]
                               {
                                   policy1,
                                   policy2
@@ -111,8 +113,8 @@ namespace ExceptionShield.Test
         [Fact]
         public void ShouldThrowPolicyMissingException1()
         {
-            var manager = new ExceptionManager(Enumerable.Empty<ExceptionPolicyGroupBase>());
-            manager.Invoking(m => m.Handle(new OutOfMemoryException(), string.Empty))
+            var manager = new ExceptionManager(Enumerable.Empty<IExceptionPolicyGroup>());
+            manager.Invoking(m => m.Handle(new BananaException(), string.Empty))
                    .Should().ThrowExactly<PolicyMissingException>();
         }
 
@@ -120,9 +122,9 @@ namespace ExceptionShield.Test
         [Fact]
         public void ShouldThrowPolicyMissingException2()
         {
-            var manager = new ExceptionManager(Enumerable.Empty<ExceptionPolicyGroupBase>());
+            var manager = new ExceptionManager(Enumerable.Empty<IExceptionPolicyGroup>());
 
-            manager.Invoking(m => m.Handle(new OutOfMemoryException(), null))
+            manager.Invoking(m => m.Handle(new BananaException(), null))
                    .Should().ThrowExactly<PolicyMissingException>();
         }
 
@@ -132,9 +134,9 @@ namespace ExceptionShield.Test
         public void T1()
         {
             var policy1 = PolicyGroupBuilder
-                .Create<OutOfMemoryException, Exception>
-                    (d => d
-                          .StartAndComplete(c => c.Set<ExceptionHandler<OutOfMemoryException, Exception>>())
+                .Create<PearException>
+                    (d => d.SetTargetForDefaultContext<BananaException>()
+                          .StartAndComplete(c => c.Set<ExceptionHandler<PearException, BananaException>>())
                           .WithoutTerminator()
                     );
 
@@ -145,16 +147,16 @@ namespace ExceptionShield.Test
                                                });
 
 
-            manager.Invoking(m => m.Handle(new OutOfMemoryException()))
-                   .Should().ThrowExactly<Exception>();
+            manager.Invoking(m => m.Handle(new PearException()))
+                   .Should().ThrowExactly<BananaException>();
         }        
         
         [Fact]
         public void Handle_ShouldNotThrowTheResultingException_WhenThePolicyIsTerminated()
         {
             var policy1 = PolicyGroupBuilder
-                .Create<AppleException, PearException>
-                    (d => d
+                .Create<AppleException>
+                    (d => d.SetTargetForDefaultContext<PearException>()
                           .StartAndComplete(c => c.Set<ExceptionHandler<AppleException, PearException>>())
                           .WithTerminator<VoidTerminator<PearException>>()
                     );
@@ -174,8 +176,8 @@ namespace ExceptionShield.Test
         public void Handle_ShouldThrowArgumentNullException_WhenExceptionIsNull()
         {
             var policy1 = PolicyGroupBuilder
-                .Create<AppleException, PearException>
-                    (d => d
+                .Create<AppleException>
+                    (d => d.SetTargetForDefaultContext<PearException>()
                           .StartAndComplete(c => c.Set<ExceptionHandler<AppleException, PearException>>())
                           .WithTerminator<VoidTerminator<PearException>>()
                     );
@@ -195,12 +197,11 @@ namespace ExceptionShield.Test
         public void T2()
         {
             var policy2 = PolicyGroupBuilder
-                .Create<OutOfMemoryException, Exception>
+                .Create<AppleException>
                     (
-                     d => d
-                          .Start<ArgumentException
-                          >(c => c.Set<ExceptionHandler<OutOfMemoryException, ArgumentException>>())
-                          .ThenComplete(c => c.Set<ExceptionHandler<ArgumentException, Exception>>())
+                     d => d.SetTargetForDefaultContext<BananaException>()
+                          .Start<PearException>(c => c.Set<ExceptionHandler<AppleException, PearException>>())
+                          .ThenComplete(c => c.Set<ExceptionHandler<PearException, BananaException>>())
                           .WithoutTerminator()
                     );
 
@@ -210,21 +211,19 @@ namespace ExceptionShield.Test
                                                    policy2
                                                });
 
-            manager.Invoking(m => m.Handle(new OutOfMemoryException()))
-                   .Should().ThrowExactly<Exception>();
+            manager.Invoking(m => m.Handle(new AppleException()))
+                   .Should().ThrowExactly<BananaException>();
         }
 
         [Fact]
         public void T3()
         {
             var policy3 = PolicyGroupBuilder
-                .Create<OutOfMemoryException, Exception>
-                    (d => d
-                          .Start<ArgumentException
-                          >(c => c.Set<ExceptionHandler<OutOfMemoryException, ArgumentException>>())
-                          .Then<MissingFieldException
-                          >(c => c.Set<ExceptionHandler<ArgumentException, MissingFieldException>>())
-                          .ThenComplete(c => c.Set<ExceptionHandler<MissingFieldException, Exception>>())
+                .Create<CherryException>
+                    (d => d.SetTargetForDefaultContext<BananaException>()
+                          .Start<PearException>(c => c.Set<ExceptionHandler<CherryException, PearException>>())
+                          .Then<MissingFieldException>(c => c.Set<ExceptionHandler<PearException, MissingFieldException>>())
+                          .ThenComplete(c => c.Set<ExceptionHandler<MissingFieldException, BananaException>>())
                           .WithoutTerminator()
                     );
 
@@ -235,16 +234,17 @@ namespace ExceptionShield.Test
                                                }, new PolicyMissingDefaultRule(),
                                                new DefaultPolicyMatchingStrategy());
 
-            manager.Invoking(m => m.Handle(new OutOfMemoryException()))
-                   .Should().ThrowExactly<Exception>();
+            manager.Invoking(m => m.Handle(new CherryException()))
+                   .Should().ThrowExactly<BananaException>();
         }
 
         [Fact]
         public void ThrowsExceptionWhenNoTerminatorDefined()
         {
             var policy1 = PolicyGroupBuilder
-                .Create<AppleException, AppleException>
-                    (d => d.StartAndComplete(c => c.Set<TestExceptionHandler<AppleException>>())
+                .Create<AppleException>
+                    (d => d.SetTargetForDefaultContext<AppleException>()
+                          .StartAndComplete(c => c.Set<TestExceptionHandler<AppleException>>())
                            .WithoutTerminator());
 
             policy1.Should().NotBeNull();
@@ -254,7 +254,7 @@ namespace ExceptionShield.Test
                                                }, new PolicyMissingDefaultRule(),
                                                new DefaultPolicyMatchingStrategy());
 
-            manager.Invoking(m => m.Handle(new OutOfMemoryException()))
+            manager.Invoking(m => m.Handle(new BananaException()))
                    .Should().ThrowExactly<PolicyMissingException>();
         }
 
@@ -262,11 +262,12 @@ namespace ExceptionShield.Test
         public void UnWrappRuleTest01()
         {
             var policy2 = PolicyGroupBuilder
-                .Create<AggregateException, AppleException>
+                .Create<AggregateException>
                     (
-                     bd => bd.StartAndComplete(c => c.Set<TestExceptionHandlerB<AggregateException>>())
+                     bd => bd.SetTargetForDefaultContext<AppleException>()
+                           .StartAndComplete(c => c.Set<TestExceptionHandlerB<AggregateException>>())
                              .WithoutTerminator(),
-                     b1 => b1.SetContext("marten")
+                     b1 => b1.SetTargetForContext<AppleException>("marten")
                              .StartAndComplete(c => c.Set<TestExceptionHandlerB<AggregateException>>())
                              .WithoutTerminator()
                     );

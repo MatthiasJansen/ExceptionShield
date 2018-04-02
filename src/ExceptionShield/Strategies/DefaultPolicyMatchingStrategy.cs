@@ -19,7 +19,7 @@ namespace ExceptionShield.Strategies
 {
     public class DefaultPolicyMatchingStrategy : IPolicyMatchingStrategy
     {
-        public ExceptionPolicyBase MatchPolicy(IReadOnlyDictionary<Type, ExceptionPolicyGroupBase> policyDictionary,
+        public IExceptionPolicy MatchPolicy(IReadOnlyDictionary<Type, IExceptionPolicyGroup> policyDictionary,
             Type type, string context)
         {
             var currentType = type;
@@ -31,7 +31,7 @@ namespace ExceptionShield.Strategies
                 var policyGroup = policyDictionary.GetValueByKeyOrDefault(currentType);
                 if (policyGroup != null)
                 {
-                    var policy = default(ExceptionPolicyBase);
+                    var policy = default(IExceptionPolicy);
                     if (context != Context.Default)
                         policy = policyGroup.PolicyByContextOrDefault(context);
 

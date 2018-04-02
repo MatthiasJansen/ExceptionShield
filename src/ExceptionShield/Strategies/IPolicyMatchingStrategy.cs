@@ -17,7 +17,6 @@ namespace ExceptionShield.Strategies
 {
     public interface IPolicyMatchingStrategy
     {
-        ExceptionPolicyBase MatchPolicy(IReadOnlyDictionary<Type, ExceptionPolicyGroupBase> policyDictionary, Type type,
-            string context);
+        IExceptionPolicy MatchPolicy(IReadOnlyDictionary<Type, IExceptionPolicyGroup> policyDictionary, Type type, string context);
     }
 }

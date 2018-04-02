@@ -1,6 +1,6 @@
 #region headers
 
-// Copyright (c) 2017 Matthias Jansen
+// Copyright (c) 2018 Matthias Jansen
 // See the LICENSE file in the project root for more information.
 
 #endregion
@@ -21,11 +21,11 @@ using JetBrains.Annotations;
 
 namespace ExceptionShield.Policies
 {
-    public class ExceptionPolicy<TSrc, TEnd> : ExceptionPolicyBase
+    public class ExceptionPolicy<TSrc, TEnd> : IExceptionPolicy
         where TSrc : Exception
         where TEnd : Exception
     {
-        private readonly IReadOnlyDictionary<Type, Type> handlerDefinitions;
+        protected readonly IReadOnlyDictionary<Type, Type> handlerDefinitions;
         private readonly Type terminatorType;
 
         public ExceptionPolicy(IReadOnlyDictionary<Type, Type> handlerDefinitions, Type terminator = null)
@@ -45,15 +45,16 @@ namespace ExceptionShield.Policies
                 }
             }
 
-            this.handlerDefinitions   = handlerDefinitions;
+
+            this.handlerDefinitions = handlerDefinitions;
             this.terminatorType = terminator;
         }
 
-        public override Type Handles => typeof(TSrc);
-        public override Type Returns => typeof(TEnd);
+        public Type Handles => typeof(TSrc);
+        public Type Returns => typeof(TEnd);
 
         [CanBeNull]
-        public override Exception Handle(IExceptionalResolver resolver, Exception src)
+        public Exception Handle(IExceptionalResolver resolver, Exception src)
         {
             var cur = src;
             foreach (var handlerDesc in this.handlerDefinitions)
@@ -67,14 +68,15 @@ namespace ExceptionShield.Policies
                 }
             }
 
-            return this.terminatorType == null 
+            return this.terminatorType == null
                        ? cur // No terminatorType was defined, the exception will be returned for re-throwing.
                        : Terminate(resolver, cur as TEnd);
         }
 
+
         private Exception Terminate(IExceptionalResolver resolver, TEnd cur)
         {
-            ((TerminatorBase<TEnd>)resolver.Resolve(this.terminatorType)).Terminate(cur);
+            ((TerminatorBase<TEnd>) resolver.Resolve(this.terminatorType)).Terminate(cur);
 
             return null;
         }

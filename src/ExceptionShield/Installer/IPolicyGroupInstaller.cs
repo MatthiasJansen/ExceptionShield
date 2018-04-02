@@ -4,6 +4,6 @@ namespace ExceptionShield.Installer
 {
     public interface IPolicyGroupInstaller
     {
-        ExceptionPolicyGroupBase Provide();
+        IExceptionPolicyGroup Provide();
     }
 }

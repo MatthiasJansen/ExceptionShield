@@ -19,15 +19,14 @@ namespace ExceptionShield.Installer.Builder
 {
     public class PolicyGroupBuilder
     {
-        public static ExceptionPolicyGroup<TSrc, TDst> Create<TSrc, TDst>(
-            DefaultCreator<TSrc, TDst> defaultCreator,
-            params RegularCreator<TSrc, TDst>[] regularCreators)
+        public static ExceptionPolicyGroup<TSrc> Create<TSrc>(
+                   DefaultCreator<TSrc> defaultCreator,
+            params RegularCreator<TSrc>[] regularCreators)
             where TSrc : Exception
-            where TDst : Exception
         {
-            var policyDict = new Dictionary<string, ExceptionPolicy<TSrc, TDst>>();
+            var policyDict = new Dictionary<string, IExceptionPolicy>();
 
-            var defaultPolicyDefinitionBuilderHead = new DefaultPolicyDefinitionBuilder<TSrc, TDst>();
+            var defaultPolicyDefinitionBuilderHead = new DefaultPolicyDefinitionBuilderProxy<TSrc>();
             var defaultPolicyDefinition = defaultCreator.Invoke(defaultPolicyDefinitionBuilderHead);
 
             var defaultPolicy = defaultPolicyDefinition.CreatePolicy();
@@ -36,15 +35,15 @@ namespace ExceptionShield.Installer.Builder
 
             foreach (var regularCreator in regularCreators)
             {
-                var pdb = new RegularPolicyDefinitionBuilderProxy<TSrc, TDst>();
+                var pdb = new RegularPolicyDefinitionBuilderProxy<TSrc>();
                 var regularPolicyDefinition = regularCreator.Invoke(pdb);
                 var regularPolicy = regularPolicyDefinition.CreatePolicy();
                 policyDict.Add(regularPolicyDefinition.Context, regularPolicy);
             }
 
             return
-                new ExceptionPolicyGroup<TSrc, TDst>
-                    (new ReadOnlyDictionary<string, ExceptionPolicy<TSrc, TDst>>(policyDict));
+                new ExceptionPolicyGroup<TSrc>
+                    (new ReadOnlyDictionary<string, IExceptionPolicy>(policyDict));
         }
     }
 }

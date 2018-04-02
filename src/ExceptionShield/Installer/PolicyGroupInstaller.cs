@@ -22,16 +22,16 @@ namespace ExceptionShield.Installer
     public abstract class PolicyGroupInstaller<TSrc, TDst> : IPolicyGroupInstaller where TSrc : Exception
         where TDst : Exception
     {
-        public ExceptionPolicyGroupBase Provide()
+        public IExceptionPolicyGroup Provide()
         {
-            var hBuilder = new DefaultPolicyDefinitionBuilder<TSrc, TDst>();
-            var nBuilder = new RegularPolicyDefinitionBuilderProxy<TSrc, TDst>();
+            var hBuilder = new DefaultPolicyDefinitionBuilderProxy<TSrc>();
+            var nBuilder = new RegularPolicyDefinitionBuilderProxy<TSrc>();
 
             var defaultPolicyDefinition = Provide(hBuilder);
 
             var defaultPolicy = defaultPolicyDefinition.CreatePolicy();
 
-            var policyDict = new Dictionary<string, ExceptionPolicy<TSrc, TDst>>
+            var policyDict = new Dictionary<string, IExceptionPolicy>
             {
                 {defaultPolicyDefinition.Context, defaultPolicy}
             };
@@ -44,14 +44,14 @@ namespace ExceptionShield.Installer
             }
 
             return
-                new ExceptionPolicyGroup<TSrc, TDst>(
-                    new ReadOnlyDictionary<string, ExceptionPolicy<TSrc, TDst>>(policyDict));
+                new ExceptionPolicyGroup<TSrc>(
+                    new ReadOnlyDictionary<string, IExceptionPolicy>(policyDict));
         }
 
         protected abstract CompletePolicyDefinition<TSrc, TDst> 
-            Provide(DefaultPolicyDefinitionBuilder<TSrc, TDst> builder);
+            Provide(DefaultPolicyDefinitionBuilderProxy<TSrc> builder);
 
         protected abstract IEnumerable<CompletePolicyDefinition<TSrc, TDst>>
-            Provide(RegularPolicyDefinitionBuilderProxy<TSrc, TDst> builderProxy);
+            Provide(RegularPolicyDefinitionBuilderProxy<TSrc> builderProxy);
     }
 }

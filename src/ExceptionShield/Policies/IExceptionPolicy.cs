@@ -14,11 +14,10 @@ using ExceptionShield.Plugable.Resolver;
 
 namespace ExceptionShield.Policies
 {
-    public abstract class ExceptionPolicyBase
+    public interface IExceptionPolicy
     {
-        public abstract Type Handles { get; }
-        public abstract Type Returns { get; }
-
-        public abstract Exception Handle(IExceptionalResolver resolver, Exception src);
+        Type Handles { get; }
+        Type Returns { get; }
+        Exception Handle(IExceptionalResolver resolver, Exception src);
     }
 }

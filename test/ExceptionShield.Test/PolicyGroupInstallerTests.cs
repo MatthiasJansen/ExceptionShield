@@ -55,20 +55,19 @@ namespace ExceptionShield.Test
         internal class DummyPolicyGroupInstaller : PolicyGroupInstaller<AppleException, PearException>
         {
             /// <inheritdoc />
-            protected override CompletePolicyDefinition<AppleException, PearException> Provide(
-                DefaultPolicyDefinitionBuilder<AppleException, PearException> builder)
+            protected override CompletePolicyDefinition<AppleException, PearException> Provide(DefaultPolicyDefinitionBuilderProxy<AppleException> builder)
             {
-                return builder
-                    .Start<CherryException>(c => c.Set<Handler1>())
-                    .ThenComplete(c => c.Set<Handler2>())
-                    .WithoutTerminator()  
-                    ;
+                return builder.SetTargetForDefaultContext<PearException>()
+                       .Start<CherryException>(c => c.Set<Handler1>())
+                     .ThenComplete(c => c.Set<Handler2>())
+                     .WithoutTerminator()
+                     ;
             }
 
             /// <inheritdoc />
-            protected override IEnumerable<CompletePolicyDefinition<AppleException, PearException>> Provide(RegularPolicyDefinitionBuilderProxy<AppleException, PearException> builderProxy)
+            protected override IEnumerable<CompletePolicyDefinition<AppleException, PearException>> Provide(RegularPolicyDefinitionBuilderProxy<AppleException> builderProxy)
             {
-                yield return builderProxy.SetContext("red wine")
+                yield return builderProxy.SetTargetForContext<PearException>("red wine")
                                          .StartAndComplete(c => c.Set<Handler3>())
                                          .WithoutTerminator();
             }

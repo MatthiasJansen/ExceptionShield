@@ -15,126 +15,132 @@ using ExceptionShield.Handlers;
 using ExceptionShield.Installer.Builder;
 using ExceptionShield.Policies;
 using ExceptionShield.Strategies;
+using ExceptionShield.Test.Scaffolding;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace ExceptionShield.Test
 {
     public class DefaultStrategyTests
     {
-        public class L3Ex : L2Ex
-        {
-        }
-
-        public class L2Ex : L1Ex
-        {
-        }
-
-        public class L1Ex : Exception
-        {
-        }
-
-
         public static IEnumerable<object[]> TestCases
         {
             get
             {
-                var g1Cn =
-                    PolicyGroupBuilder.Create<L1Ex, Exception>
-                        (d => d.StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>())
+                var fruitPolicyNormal =
+                    PolicyGroupBuilder.Create<FruitException>
+                        (d => d.SetTargetForDefaultContext<PearException>()
+                               .StartAndComplete(c => c.Set<ExceptionHandler<FruitException, PearException>>())
+                               .WithoutTerminator());
+
+                var cherryPolicyNormal =
+                    PolicyGroupBuilder.Create<CherryException>
+                        (d => d.SetTargetForDefaultContext<PearException>()
+                               .StartAndComplete(c => c.Set<ExceptionHandler<CherryException, PearException>>())
+                               .WithoutTerminator()
+                        );
+                var bananaPolicyNormal =
+                    PolicyGroupBuilder.Create<BananaException>
+                        (d => d.SetTargetForDefaultContext<PearException>()
+                               .StartAndComplete(c => c.Set<ExceptionHandler<BananaException, PearException>>())
                                .WithoutTerminator()
                         );
 
-                var g2Cn =
-                    PolicyGroupBuilder.Create<L2Ex, Exception>
-                        (d => d.StartAndComplete(c => c.Set<ExceptionHandler<L2Ex, Exception>>())
-                               .WithoutTerminator()
-                        );
-                var g3Cn =
-                    PolicyGroupBuilder.Create<L3Ex, Exception>
-                        (d => d.StartAndComplete(c => c.Set<ExceptionHandler<L3Ex, Exception>>())
-                               .WithoutTerminator()
-                        );
-
-                var g1Cs =
-                    PolicyGroupBuilder
-                        .Create<L1Ex, Exception
-                        >(d => d.StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>()).WithoutTerminator(),
-                          s => s.SetContext("special")
-                                .StartAndComplete(c => c.Set<ExceptionHandler<L1Ex, Exception>>())
-                                .WithoutTerminator());
+                var fruitPolicySpecial =
+                    PolicyGroupBuilder.Create<FruitException>
+                        (d => d.SetTargetForDefaultContext<PearException>()
+                               .StartAndComplete(c => c.Set<ExceptionHandler<FruitException, PearException>>())
+                               .WithoutTerminator(),
+                         s => s.SetTargetForContext<PearException>("special")
+                               .StartAndComplete(c => c.Set<ExceptionHandler<FruitException, PearException>>())
+                               .WithoutTerminator());
 
                 yield return new object[]
                              {
-                                 typeof(L3Ex),
-                                 new Dictionary<Type, ExceptionPolicyGroupBase>
+                                 typeof(BananaException),
+                                 typeof(FruitException),
+                                 new Dictionary<Type, IExceptionPolicyGroup>
                                  {
-                                     {g1Cn.Handles, g1Cn}
+                                     {fruitPolicyNormal.Handles, fruitPolicyNormal}
                                  },
-                                 Context.Default,
-                                 typeof(L1Ex)
+                                 Context.Default
                              };
                 yield return new object[]
                              {
-                                 typeof(L3Ex),
-                                 new Dictionary<Type, ExceptionPolicyGroupBase>
+                                 typeof(BananaException),
+                                 typeof(FruitException),
+                                 new Dictionary<Type, IExceptionPolicyGroup>
                                  {
-                                     {g1Cn.Handles, g1Cn}
+                                     {fruitPolicyNormal.Handles, fruitPolicyNormal}
                                  },
-                                 "special",
-                                 typeof(L1Ex)
+                                 "special"
                              };
                 yield return new object[]
                              {
-                                 typeof(L3Ex),
+                                 typeof(BananaException),
+                                 typeof(FruitException),
 
-                                 new Dictionary<Type, ExceptionPolicyGroupBase>
+                                 new Dictionary<Type, IExceptionPolicyGroup>
                                  {
                                      {
-                                         g1Cs.Handles, g1Cs
+                                         fruitPolicySpecial.Handles, fruitPolicySpecial
                                      }
                                  },
-                                 "special",
-                                 typeof(L1Ex)
+                                 "special"
                              };
 
                 yield return new object[]
                              {
-                                 typeof(L3Ex),
-                                 new Dictionary<Type, ExceptionPolicyGroupBase>
+                                 typeof(BananaException),
+                                 typeof(FruitException),
+                                 new Dictionary<Type, IExceptionPolicyGroup>
                                  {
-                                     {g1Cn.Handles, g1Cn},
-                                     {g2Cn.Handles, g2Cn}
+                                     {fruitPolicyNormal.Handles, fruitPolicyNormal},
+                                     {cherryPolicyNormal.Handles, cherryPolicyNormal}
                                  },
-                                 Context.Default,
-                                 typeof(L2Ex)
+                                 Context.Default
                              };
                 yield return new object[]
                              {
-                                 typeof(L3Ex),
-                                 new Dictionary<Type, ExceptionPolicyGroupBase>
+                                 typeof(BananaException),
+                                 typeof(BananaException),
+                                 new Dictionary<Type, IExceptionPolicyGroup>
                                  {
-                                     {g1Cn.Handles, g1Cn},
-                                     {g2Cn.Handles, g2Cn},
-                                     {g3Cn.Handles, g3Cn}
+                                     {fruitPolicyNormal.Handles, fruitPolicyNormal},
+                                     {cherryPolicyNormal.Handles, cherryPolicyNormal},
+                                     {bananaPolicyNormal.Handles, bananaPolicyNormal}
                                  },
-                                 Context.Default,
-                                 typeof(L3Ex)
+                                 Context.Default
                              };
             }
         }
 
+        private readonly ITestOutputHelper outputHelper;
+
+        public DefaultStrategyTests(ITestOutputHelper outputHelper)
+        {
+            this.outputHelper = outputHelper;
+        }
 
         [Theory]
         [MemberData(nameof(TestCases))]
-        public void ShouldSelect_ExpectedPolicy(Type requested, Dictionary<Type, ExceptionPolicyGroupBase> policyGroups, string context,
-                       Type expected)
+        public void ShouldSelect_ExpectedPolicy(Type requested, Type expected, Dictionary<Type, IExceptionPolicyGroup> policyGroups, string context)
         {
+            this.outputHelper.WriteLine($"Requested policy for {requested.Name}");
+            this.outputHelper.WriteLine($"Expected matched policy: {expected.Name}");
+
+            this.outputHelper.WriteLine("Policies provided:");
+            foreach (var policyGroupsKey in policyGroups.Keys)
+            {
+                this.outputHelper.WriteLine($"    {policyGroupsKey.Name}");
+            }
+            
             var strategy = new DefaultPolicyMatchingStrategy();
 
-            var result = strategy.MatchPolicy(policyGroups, requested, Context.Default);
-
-            result.Handles.Should().Be(expected);
+            var actual = strategy.MatchPolicy(policyGroups, requested, Context.Default);
+            this.outputHelper.WriteLine($"Actual matched policy: {actual.Handles.Name}");
+            actual.Handles.Should().Be(expected);
         }
     }
 }

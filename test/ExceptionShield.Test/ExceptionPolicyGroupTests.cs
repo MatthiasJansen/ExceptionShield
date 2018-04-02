@@ -22,21 +22,11 @@ namespace ExceptionShield.Test
     public class ExceptionPolicyGroupTests
     {
         [Fact]
-        public void Handles_ShouldBeTheTypeOfTheDstException()
-        {
-            var epg = new ExceptionPolicyGroup<ArgumentNullException, ArgumentOutOfRangeException>(
-                new ReadOnlyDictionary<string, ExceptionPolicy<ArgumentNullException, ArgumentOutOfRangeException>>(
-                    new Dictionary<string, ExceptionPolicy<ArgumentNullException, ArgumentOutOfRangeException>>()));
-
-            epg.Returns.Should().Be(typeof(ArgumentOutOfRangeException));
-        }
-
-        [Fact]
         public void Handles_ShouldBeTheTypeOfTheSrcException()
         {
-            var epg = new ExceptionPolicyGroup<ArgumentNullException, ArgumentOutOfRangeException>(
-                new ReadOnlyDictionary<string, ExceptionPolicy<ArgumentNullException, ArgumentOutOfRangeException>>(
-                    new Dictionary<string, ExceptionPolicy<ArgumentNullException, ArgumentOutOfRangeException>>()));
+            var epg = new ExceptionPolicyGroup<ArgumentNullException>(
+                new ReadOnlyDictionary<string, IExceptionPolicy>(
+                    new Dictionary<string, IExceptionPolicy>()));
 
             epg.Handles.Should().Be(typeof(ArgumentNullException));
         }
@@ -44,9 +34,9 @@ namespace ExceptionShield.Test
         [Fact]
         public void PolicyByContextOrDefault_DoesNotThrow_WhenContextIsNull()
         {
-            var epg = new ExceptionPolicyGroup<ArgumentNullException, ArgumentOutOfRangeException>(
-                new ReadOnlyDictionary<string, ExceptionPolicy<ArgumentNullException, ArgumentOutOfRangeException>>(
-                    new Dictionary<string, ExceptionPolicy<ArgumentNullException, ArgumentOutOfRangeException>>()));
+            var epg = new ExceptionPolicyGroup<ArgumentNullException>(
+                new ReadOnlyDictionary<string, IExceptionPolicy>(
+                    new Dictionary<string, IExceptionPolicy>()));
 
             var ctx = epg.PolicyByContextOrDefault(null);
         }

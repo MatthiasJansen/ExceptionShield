@@ -19,7 +19,6 @@ using Xunit;
 
 namespace ExceptionShield.Test
 {
-    
     public class DefaultRuleTests
     {
         [Fact]
@@ -32,16 +31,17 @@ namespace ExceptionShield.Test
                 ;
 
             var policyGroup = PolicyGroupBuilder
-                .Create<AppleException, AppleException>
-                (
-                    d => d.StartAndComplete(c => c.Set<ExceptionManagerTests.TestExceptionHandler<AppleException>>())
-                     .WithoutTerminator()
-                );
+                .Create<AppleException>
+                    (
+                     d => d.SetTargetForDefaultContext<AppleException>()
+                           .StartAndComplete(c => c.Set<ExceptionManagerTests.TestExceptionHandler<AppleException>>())
+                           .WithoutTerminator()
+                    );
 
-            var manager = new ExceptionManager(new []{policyGroup}, defaultRuleMock.Object);
+            var manager = new ExceptionManager(new[] {policyGroup}, defaultRuleMock.Object);
 
             manager.Invoking(m => m.Handle(new OutOfMemoryException()))
-                .Should().ThrowExactly<PolicyMissingException>();
+                   .Should().ThrowExactly<PolicyMissingException>();
 
             defaultRuleMock.Verify();
         }
